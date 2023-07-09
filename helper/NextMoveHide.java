@@ -15,27 +15,11 @@ import java.util.LinkedList;
 import java.util.Deque;
 import java.util.logging.Logger;
 import java.lang.Math;
-
+import java.util.Iterator;
 
 public class NextMoveHide extends DefaultInternalAction
 {
-    private enum State
-    {
-        HIDING,
-        SNEAKING,
-        RUNNING;
-    }
-
-
     static Logger logger = Logger.getLogger(NextMoveHide.class.getName());
-    Term sneaking  = Literal.parseLiteral("sneaking");
-    Term hiding  = Literal.parseLiteral("hiding");
-    Term running    = Literal.parseLiteral("running");
-    State state = State.HIDING;
-    AStar path = null;
-    int lookEvery = 4;
-    int moveNum = 0;
-    boolean peekedLast = false; // serve per ricordarmi se l'ultima azione ho già sbirciato
 
     private Direction getRelativeDirection(Location hiding, Location seeker)
     {
@@ -100,6 +84,10 @@ public class NextMoveHide extends DefaultInternalAction
                 //logger.info("Position: "+tmp.toString()); //TEST
                 if( !(pos.distanceManhattan(tmp) < maxMove) || !model.isFree(Playground.OBSTACLE, tmp))
                     continue;
+                // Uso un'euristica per determinare se la posizione è un nascondiglio adeguato
+                // prendo in considerarione la distanza dall'ultima posizione nota del cercatore
+                // e quanti muri ha intorno
+                // TODO: questa euristica da sempre lo stesso valore per la stessa cella: Ha senso introdurre della casualità?
                 double heuristic = tmp.distanceManhattan(new Location(xSeeker, ySeeker)) / 4.0;
                 Direction relative = getRelativeDirection(tmp, new Location(xSeeker, ySeeker));
                 Direction[] adj = Direction.adjDir180(relative);
@@ -136,36 +124,6 @@ public class NextMoveHide extends DefaultInternalAction
                 throw new JasonException("The argument must be a variable.");
             }
             Unifier u = new Unifier();
-            if (!ts.getAg().believes(Literal.parseLiteral("state(S)"), u) )
-            {
-                throw new JasonException("Missing belief \"state\" ");
-            }
-            Term state = u.get("S");
-            boolean newPath = false;
-            
-            //TEST
-            // if(this.state == State.SNEAKING)
-            // {
-            //     un.unifies(args[0], Literal.parseLiteral("lookAround"));
-            //     return true;
-            // }
-
-            //Se l'agente ha cambiato stato in questa chiamata, devo pulire il percorso da fare
-            if((state.equals(running) && this.state != State.RUNNING))
-            {
-                this.state = State.RUNNING;
-                newPath = true;
-            }
-            if(state.equals(hiding) && this.state != State.HIDING)
-            {
-                this.state = State.HIDING;
-                newPath = true;
-            }
-            if(state.equals(sneaking) && this.state != State.SNEAKING)
-            {
-                this.state = State.SNEAKING;
-                newPath = true;
-            }
             if (!ts.getAg().believes(Literal.parseLiteral("myPos(X, Y)"), u) )
             {
                 throw new JasonException("Missing belief \"myPos\" ");
@@ -173,63 +131,33 @@ public class NextMoveHide extends DefaultInternalAction
             int x = (int)((NumberTerm) u.get("X")).solve();
             int y = (int)((NumberTerm) u.get("Y")).solve();
             Location pos = new Location(x, y);
-
-            if( newPath || path == null || path.isEmpty())
+            
+            if (!ts.getAg().believes(Literal.parseLiteral("lastSeen(A, B)"), u) )
             {
-                // Se non ha cambiato stato, si sta nascondendo e ha finito il percorso, vuol dire che è al nascondiglio
-                // e deve cominciare ad andare alla tana se il cercatore ha smesso di contare
-                if(!newPath && this.state == State.HIDING && path != null && path.isEmpty())
-                {
-                    if(Model.get().counting)
-                    {
-                        un.unifies(args[0], Literal.parseLiteral("lookAround"));
-                        return true;
-                    }
-                    this.state = State.SNEAKING;
-                    ts.getAg().delBel(Literal.parseLiteral("state(hiding)"));
-                    ts.getAg().addBel(Literal.parseLiteral("state(sneaking)"));
-                }
-                Location goal;
-                if((this.state == State.RUNNING || this.state == State.SNEAKING))
-                {
-                    goal = new Location(5, 5);//MAGIC NUMBER
-                }
-                else
-                {
-                    if (!ts.getAg().believes(Literal.parseLiteral("lastSeen(A, B)"), u) )
-                    {
-                        throw new JasonException("Missing belief \"lastSeen\" ");
-                    }
-                    int xSeeker = (int) ((NumberTerm) u.get("A")).solve();
-                    int ySeeker = (int) ((NumberTerm) u.get("B")).solve();
-                    goal = getHidingSpot(pos, xSeeker, ySeeker); 
-                    logger.info("Hiding: " + goal.toString());
-                }
-                path = new AStar(pos, goal);
+                throw new JasonException("Missing belief \"lastSeen\" ");
             }
-            if(this.state == State.SNEAKING)
-            {
-                if(!peekedLast && Model.get().canPeek(pos))
-                {
-                    un.unifies(args[0], Literal.parseLiteral("peek"));
-                    peekedLast = true;
-                }
-                else if(!peekedLast && moveNum % lookEvery == 0)
-                {
-                    un.unifies(args[0], Literal.parseLiteral("lookAround"));
-                    peekedLast = false;
-                    ++moveNum;
-                }
-                else
-                {
-                    un.unifies(args[0], Literal.parseLiteral("move("+path.getNext().name().toLowerCase()+")")); 
-                    peekedLast = false;
-                }
-            }
-            if(this.state == State.HIDING || this.state == State.RUNNING)
-                un.unifies(args[0], Literal.parseLiteral("move("+path.getNext().name().toLowerCase()+")")); 
+            int xSeeker = (int) ((NumberTerm) u.get("A")).solve();
+            int ySeeker = (int) ((NumberTerm) u.get("B")).solve();
+            Location goal = getHidingSpot(pos, xSeeker, ySeeker); 
+            logger.info("Hiding: " + goal.toString());
 
-            return true;
+            AStar path = new AStar(pos, goal);
+
+            return new Iterator<Unifier>()
+            {
+                public boolean hasNext()
+                {
+                    return !path.isEmpty();
+                }
+
+                public Unifier next()
+                {
+                    Direction dir = path.getNext();
+                    Unifier ret = un.clone();
+                    ret.unifies(args[0], Literal.parseLiteral(dir.name().toLowerCase()) );
+                    return ret;
+                }
+            };
         }
         catch (ArrayIndexOutOfBoundsException e)
         {

@@ -6,7 +6,7 @@ home(5, 5). //MAGIC NUMBER
 lastSeen(5, 5). //MAGIC NUMBER
 /* Initial goals */
 
-!act.
+!hide.
 
 /* Plans */
 
@@ -24,3 +24,4 @@ lastSeen(5, 5). //MAGIC NUMBER
 +!act <- helper.NextMoveHide(ACTION); ACTION; !act. // l'azione interna si occupa di dove andare e come
 -!act <- !act.
 
++!hide <- for(helper.NextMoveHide(DIR)) { move(DIR);}.
