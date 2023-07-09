@@ -9,7 +9,7 @@ lastSeen(5, 5). //MAGIC NUMBER
 !hide.
 
 /* Plans */
-
+@pos[atomic]
 +pos(seeker, X, Y) : state(ST) & ST \== hiding & .my_name(S) & not seen(S)[source(seeker)] <- -+lastSeen(X, Y); -pos(seeker, X, Y); -+state(hiding); .drop_all_intentions; !!hide.
 
 +found(S)[source(seeker)] : .my_name(S) <- .print("NOOOOOOO"); .drop_all_intentions; die.
@@ -33,8 +33,13 @@ lastSeen(5, 5). //MAGIC NUMBER
                 {
                     lookAround;
                 }
+                if(helper.CanPeek)
+                {
+                    peek;
+                }
                 move(DIR);
+                -+num(X +1);
             } 
-            !free. //TODO: Aggiunger peek
+            !free.
 
-+!free <- .my_name(S); .broadcast(tell, free(S)); die.
++!free <- .my_name(S); .broadcast(tell, free(S)); .print("Sono libero"); .drop_all_intentions; die.
