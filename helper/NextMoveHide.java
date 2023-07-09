@@ -100,10 +100,6 @@ public class NextMoveHide extends DefaultInternalAction
                 //logger.info("Position: "+tmp.toString()); //TEST
                 if( !(pos.distanceManhattan(tmp) < maxMove) || !model.isFree(Playground.OBSTACLE, tmp))
                     continue;
-                // Uso un'euristica per determinare se la posizione è un nascondiglio adeguato
-                // prendo in considerarione la distanza dall'ultima posizione nota del cercatore
-                // e quanti muri ha intorno
-                // TODO: questa euristica da sempre lo stesso valore per la stessa cella: Ha senso introdurre della casualità?
                 double heuristic = tmp.distanceManhattan(new Location(xSeeker, ySeeker)) / 4.0;
                 Direction relative = getRelativeDirection(tmp, new Location(xSeeker, ySeeker));
                 Direction[] adj = Direction.adjDir180(relative);
