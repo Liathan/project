@@ -17,9 +17,14 @@ import java.util.logging.Logger;
 import java.lang.Math;
 import java.util.Iterator;
 
-public class NextMoveHide extends DefaultInternalAction
+public class NextMove extends DefaultInternalAction
 {
-    static Logger logger = Logger.getLogger(NextMoveHide.class.getName());
+    static Logger logger = Logger.getLogger(NextMove.class.getName());
+    Term searching  = Literal.parseLiteral("searching");
+    Term running    = Literal.parseLiteral("running");
+    Term sneaking    = Literal.parseLiteral("sneaking");
+    Term hiding    = Literal.parseLiteral("hiding");
+
 
     private Direction getRelativeDirection(Location hiding, Location seeker)
     {
@@ -128,19 +133,32 @@ public class NextMoveHide extends DefaultInternalAction
             {
                 throw new JasonException("Missing belief \"myPos\" ");
             }
+            if (!ts.getAg().believes(Literal.parseLiteral("state(S)"), u) )
+            {
+                throw new JasonException("Missing belief \"state\" ");
+            }
+            Term state = u.get("S");
             int x = (int)((NumberTerm) u.get("X")).solve();
             int y = (int)((NumberTerm) u.get("Y")).solve();
             Location pos = new Location(x, y);
             
-            if (!ts.getAg().believes(Literal.parseLiteral("lastSeen(A, B)"), u) )
+            Location goal = null;
+            if(state.equals(sneaking) || state.equals(running))
+                goal = new Location(5, 5);
+            if(state.equals(hiding))
             {
-                throw new JasonException("Missing belief \"lastSeen\" ");
+                if (!ts.getAg().believes(Literal.parseLiteral("lastSeen(A, B)"), u) )
+                {
+                    throw new JasonException("Missing belief \"lastSeen\" ");
+                }
+                int xSeeker = (int) ((NumberTerm) u.get("A")).solve();
+                int ySeeker = (int) ((NumberTerm) u.get("B")).solve();
+                goal = getHidingSpot(pos, xSeeker, ySeeker); 
             }
-            int xSeeker = (int) ((NumberTerm) u.get("A")).solve();
-            int ySeeker = (int) ((NumberTerm) u.get("B")).solve();
-            Location goal = getHidingSpot(pos, xSeeker, ySeeker); 
-            logger.info("Hiding: " + goal.toString());
-
+            if(state.equals(searching))
+                goal = Model.get().freePos(Playground.OBSTACLE);
+            logger.info(state.toString().toUpperCase());
+            logger.info(": " + goal.toString());
             AStar path = new AStar(pos, goal);
 
             return new Iterator<Unifier>()
@@ -154,6 +172,7 @@ public class NextMoveHide extends DefaultInternalAction
                 {
                     Direction dir = path.getNext();
                     Unifier ret = un.clone();
+                    // logger.info(dir.name()); // TEST
                     ret.unifies(args[0], Literal.parseLiteral(dir.name().toLowerCase()) );
                     return ret;
                 }
@@ -161,11 +180,11 @@ public class NextMoveHide extends DefaultInternalAction
         }
         catch (ArrayIndexOutOfBoundsException e)
         {
-            throw new JasonException("The internal action 'NextMoveHide' has not received the required argument.");
+            throw new JasonException("The internal action 'NextMove' has not received the required argument.");
         }
         catch(Exception e)
         {
-            throw new JasonException("Error in internal action 'NextMoveHide': " + e, e);
+            throw new JasonException("Error in internal action 'NextMove': " + e, e);
         }
     }
 }

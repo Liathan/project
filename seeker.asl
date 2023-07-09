@@ -12,12 +12,22 @@ home(5, 5).//MAGIC NUMBER
 +!count <- count; !count. // l'azione count fallisce quando ha terminato la conta
 -!count <- !!seek.
 
-+!seek <- helper.NextMoveSeek(ACTION); ACTION; !seek.
++!seek <-  -+state(searching);
+            -+num(1); 
+            for(helper.NextMove(DIR))
+            { 
+                if(num(X) & X mod 4 == 0)
+                {
+                    lookAround;
+                }
+                move(DIR);
+            }
+            !seek. 
 
 // Quando vedo qualcuno, provo a catturarlo prima che si liberi
-+!runHome : home(X, Y) & myPos(X, Y) <- ?seen(S); .broadcast(tell, found(S)); -+state(searching); !!seek.
-+!runHome <- helper.NextMoveSeek(ACTION); ACTION; !runHome.
--!runHome <- !runHome.
++!runHome <- for(helper.NextMove(DIR)) { move(DIR);}; ?seen(S); .broadcast(tell, found(S)); -+state(searching); !!seek .
+
++free(S)[source(S)] : seen(S) <- -seen(S); .drop_all_intentions; !!seek.
 
 +pos(X, _, _) : X \== seeker <- .drop_all_intentions; .broadcast(tell, seen(X)); ?myPos(A, B); .broadcast(tell, pos(seeker, A, B)); -+state(running); +seen(X); !!runHome.
 

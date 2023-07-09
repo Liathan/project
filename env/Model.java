@@ -161,6 +161,9 @@ public class Model extends GridWorldModel
     public ArrayList<Location> vision(int ag)
     {
         Direction dir = lastMovements[ag];
+        // A volte lo scheduler fa in modo che venga vision venga chiamato su un agente che non esiste più (liberato/trovato), quindi aggiungo questo controllo
+        if(dir == null)
+            return new ArrayList<Location>();
         return vision(ag, dir);
     }
 
