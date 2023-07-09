@@ -1,0 +1,19 @@
+/*
+    project
+    ---------------------------
+
+    Jason Project File
+
+    This file defines the initial state of the MAS
+
+    Jason 2.5.1
+*/
+
+MAS project {
+
+    infrastructure: Local
+    
+    environment: env.Playground
+    
+    agents: seeker; hideAg#2;
+}
