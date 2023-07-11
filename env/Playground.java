@@ -94,7 +94,7 @@ public class Playground extends Environment {
     @Override
     public boolean executeAction(String ag, Structure action) 
     {
-        logger.info(ag+" doing: "+action);
+        // logger.info(ag+" doing: "+action);
         int agId = name2Id(ag);
         boolean result = false;
         try 

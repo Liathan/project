@@ -26,7 +26,7 @@ home(5, 5).//MAGIC NUMBER
 -!seek <- !seek.
 
 // Quando vedo qualcuno, provo a catturarlo prima che si liberi
-+!runHome <- for(helper.NextMove(DIR)) { move(DIR);}; ?seen(S); .broadcast(tell, found(S)); -+state(searching); !!seek .
++!runHome <- for(helper.NextMove(DIR)) { move(DIR);}; .findall(S, seen(S), L); for(.member(X, L)) { .broadcast(tell, found(X));} -+state(searching); !!seek .
 
 @free[atomic]
 +free(S)[source(S)] : seen(S) <- -seen(S); .drop_all_intentions; !!seek.

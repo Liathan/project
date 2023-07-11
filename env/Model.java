@@ -203,13 +203,6 @@ public class Model extends GridWorldModel
         return null;
     }
 
-    public boolean canPeek(Location pos)
-    {
-        Direction dir = lastMovements[getAgAtPos(pos)];
-        Direction[] adj = Direction.adjDir180(dir);
-        return (peekDir(pos, adj[1]) != null || peekDir(pos, adj[3]) != null);
-    }
-
     public ArrayList<Location> peek(int agId) throws Exception
     {
         Direction dir = lastMovements[agId];
