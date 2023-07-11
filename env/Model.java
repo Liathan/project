@@ -12,7 +12,7 @@ public class Model extends GridWorldModel
 {
 
     private int numAg;
-    private Location[] walls = null; //TODO: toglierlo?
+    private Location[] walls = null;
     private Random rnd;
  
     public static Model model = null;
@@ -22,7 +22,7 @@ public class Model extends GridWorldModel
     public Location home;
     public boolean counting = true;
 
-    private Location[] createWalls() //TODO: toglierlo?
+    private Location[] createWalls()
     {
         if(walls != null)
             return walls;
@@ -62,11 +62,6 @@ public class Model extends GridWorldModel
         return model;
     }
 
-    public Location[] getWalls() //TODO: toglierlo?
-    {
-        return walls.clone();
-    }
-
     public Model()
     {
         super(Playground.GSize, Playground.GSize, Playground.NUMAG);
@@ -90,7 +85,7 @@ public class Model extends GridWorldModel
             setAgPos(i, l);
         }
         add(Playground.HOME, home);
-        
+    
         // Test
         // Location l = getFreePos(AGENT | OBSTACLE);
         // setAgPos(0, 7, 2);
