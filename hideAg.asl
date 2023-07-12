@@ -50,6 +50,8 @@ lastSeen(5, 5). //MAGIC NUMBER
                 }
                 else
                 {
+                    .my_name(NAME);
+                    .print(NAME, " hiding in ", X, ":", Y);
                     !!hide;
                 }.
                 
