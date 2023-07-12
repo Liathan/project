@@ -90,10 +90,7 @@ public class GetHidingSpot extends DefaultInternalAction
                 // TODO: questa euristica da sempre lo stesso valore per la stessa cella: Ha senso introdurre della casualità?
                 double heuristic = tmp.distanceManhattan(seeker) / 4.0;
                 if(other != null)
-                {
-                    logger.info("AAAAAAA----------------");
                     heuristic += tmp.distanceManhattan(other) / 2.0;
-                }
                 Direction relative = getRelativeDirection(tmp, seeker);
                 Direction[] adj = Direction.adjDir180(relative);
                 double[] mask = new double[5];
@@ -150,7 +147,7 @@ public class GetHidingSpot extends DefaultInternalAction
                 int xOther = (int)((NumberTerm) u.get("X1")).solve();
                 int yOther = (int)((NumberTerm) u.get("Y1")).solve();
                 other = new Location(xOther, yOther);
-                logger.info("OCCUPIED");
+                // logger.info("OCCUPIED"); // TEST
             }
             
             Location goal = getHidingSpot(pos, seeker, other);

@@ -24,7 +24,6 @@ lastSeen(5, 5). //MAGIC NUMBER
 
 +!findSpot <-   helper.GetHidingSpot(X, Y);
                 -occupied(A, B);
-                .print(X, "--------------------", Y);
                 +goal(X, Y);
                 .findall(R, .range(R, 100, 1000), L1);
                 .random(L1, RND);

@@ -12,11 +12,12 @@ home(5, 5).//MAGIC NUMBER
 +!count <- count; !count. // l'azione count fallisce quando ha terminato la conta
 -!count <- !!seek.
 
-+!seek <-  -+state(searching);
++!seek <-   helper.RandomCell(X, Y);
+            -+goal(X, Y);
             -+num(1); 
             for(helper.NextMove(DIR))
             { 
-                if(num(X) & X mod 4 == 0)
+                if(num(N) & N mod 4 == 0)
                 {
                     lookAround;
                 }
@@ -26,7 +27,7 @@ home(5, 5).//MAGIC NUMBER
 -!seek <- !seek.
 
 // Quando vedo qualcuno, provo a catturarlo prima che si liberi
-+!runHome <- for(helper.NextMove(DIR)) { move(DIR);}; .findall(S, seen(S), L); for(.member(X, L)) { .broadcast(tell, found(X));} -+state(searching); !!seek .
++!runHome <- -+goal(5, 5); for(helper.NextMove(DIR)) { move(DIR);}; .findall(S, seen(S), L); for(.member(X, L)) { .broadcast(tell, found(X));} -+state(searching); !!seek .
 
 @free[atomic]
 +free(S)[source(S)] : seen(S) <- -seen(S); .drop_all_intentions; !!seek.
