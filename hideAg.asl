@@ -4,13 +4,15 @@
 state(hiding).
 home(5, 5). //MAGIC NUMBER
 lastSeen(5, 5). //MAGIC NUMBER
+
 /* Initial goals */
 
-!hide.
+!findSpot.
 
 /* Plans */
 @pos[atomic]
-+pos(seeker, X, Y) : state(ST) & ST \== hiding & .my_name(S) & not seen(S)[source(seeker)] <- -+lastSeen(X, Y); -pos(seeker, X, Y); -+state(hiding); .drop_all_intentions; !!hide.
++pos(seeker, X, Y) : state(ST) & ST \== hiding & .my_name(S) & not seen(S)[source(seeker)] <- -+lastSeen(X, Y); -+state(hiding); .drop_all_intentions; helper.GetHidingSpot(A, B); -+spot(A, B); !!hide.
++pos(seeker, X, Y) : .my_name(S) & not seen(S)[source(seeker)] <- -+lastSeen(X, Y); . // se non mi ha visto e mi sto già nascondendo, cambio solo l'ultima poszione nota
 
 @found[atomic]
 +found(S)[source(seeker)] : .my_name(S) <- .print("NOOOOOOO"); .drop_all_intentions; die.
@@ -20,8 +22,39 @@ lastSeen(5, 5). //MAGIC NUMBER
 +seen(S)[source(seeker)] : .my_name(S) <- .print("Arrivo prima"); -+state(running); .drop_all_intentions; !!run.
 +seen(S)[source(seeker)] <- .print("SKill Issue").
 
-
-+!run <- for(helper.NextMove(DIR)) { move(DIR);} !free.
++!findSpot <-   helper.GetHidingSpot(X, Y);
+                -occupied(A, B);
+                .print(X, "--------------------", Y);
+                +goal(X, Y);
+                .findall(R, .range(R, 100, 1000), L1);
+                .random(L1, RND);
+                .wait(RND);
+                .all_names(L);
+                for( .member(AG, L ) )
+                {
+                    if( AG \== seeker & not .my_name(AG))
+                    {
+                        // Unifico con la stessa casella che getHidingSpot my ha restituito. Se non unifico, o non mi sto nascondedno nello stesso posto o l'altro ancora non ha deciso dove nascondersi
+                        .send(AG, askOne, goal(X, Y), REPLY);  
+                        if(REPLY \== false)
+                        {
+                            +occupied(X, Y);
+                            .my_name(AA);
+                            .print(AA, "-----------------", AG);
+                            -goal(X, Y);
+                        }
+                    }
+                };
+                if(occupied(X1, Y1))
+                {
+                    !!findSpot;
+                }
+                else
+                {
+                    !!hide;
+                }.
+                
++!run <- -+goal(5, 5); for(helper.NextMove(DIR)) { move(DIR);} !free.
 -!run <- !run.
 
 +!hide <- for(helper.NextMove(DIR)) { move(DIR);} !!wait.
@@ -29,7 +62,8 @@ lastSeen(5, 5). //MAGIC NUMBER
 
 +!wait <- for(.range(X, 0, 5)) { lookAround;} !!sneak. //TODO
 
-+!sneak <-  -+state(sneaking);
++!sneak <-  -+goal(5, 5);
+            -+state(sneaking);
             -+num(1); 
             for(helper.NextMove(DIR))
             { 

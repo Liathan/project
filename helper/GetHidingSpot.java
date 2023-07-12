@@ -17,14 +17,9 @@ import java.util.logging.Logger;
 import java.lang.Math;
 import java.util.Iterator;
 
-public class NextMove extends DefaultInternalAction
+public class GetHidingSpot extends DefaultInternalAction
 {
-    static Logger logger = Logger.getLogger(NextMove.class.getName());
-    Term searching  = Literal.parseLiteral("searching");
-    Term running    = Literal.parseLiteral("running");
-    Term sneaking    = Literal.parseLiteral("sneaking");
-    Term hiding    = Literal.parseLiteral("hiding");
-
+    static Logger logger = Logger.getLogger(GetHidingSpot.class.getName());
 
     private Direction getRelativeDirection(Location hiding, Location seeker)
     {
@@ -68,11 +63,11 @@ public class NextMove extends DefaultInternalAction
         } 
     }
 
-    // TODO: fare in modo che non si nascondano nello stesso posto
-    private Location getHidingSpot(Location pos, int xSeeker, int ySeeker)
+    private Location getHidingSpot(Location pos, Location seeker, Location other)
     {
         Model model = Model.get();
         int maxMove = model.counting ? model.countdown : 3;
+        int xSeeker = seeker.x, ySeeker = seeker.y;
         // Voglio andare nella direzione opposta a quella in cui c'è il cercatore
         // Quindi cerco il nascondiglio nello stesso quadrante, ma se sono nella stessa riga/colonna, amplio con il quadrante adiacente
         int x = pos.x <= xSeeker ? 0 : xSeeker; 
@@ -93,8 +88,13 @@ public class NextMove extends DefaultInternalAction
                 // prendo in considerarione la distanza dall'ultima posizione nota del cercatore
                 // e quanti muri ha intorno
                 // TODO: questa euristica da sempre lo stesso valore per la stessa cella: Ha senso introdurre della casualità?
-                double heuristic = tmp.distanceManhattan(new Location(xSeeker, ySeeker)) / 4.0;
-                Direction relative = getRelativeDirection(tmp, new Location(xSeeker, ySeeker));
+                double heuristic = tmp.distanceManhattan(seeker) / 4.0;
+                if(other != null)
+                {
+                    logger.info("AAAAAAA----------------");
+                    heuristic += tmp.distanceManhattan(other) / 2.0;
+                }
+                Direction relative = getRelativeDirection(tmp, seeker);
                 Direction[] adj = Direction.adjDir180(relative);
                 double[] mask = new double[5];
                 mask[1] = 1;
@@ -122,71 +122,51 @@ public class NextMove extends DefaultInternalAction
     @Override
     public Object execute(final TransitionSystem ts, final Unifier un, final Term[] args) throws Exception 
     {
-        try
-        {
-            if (!args[0].isVar())
+        try{
+            if (!args[0].isVar() && !args[1].isVar())
             {
-                throw new JasonException("The argument must be a variable.");
+                throw new JasonException("The 2 arguments must be variables.");
             }
             Unifier u = new Unifier();
             if (!ts.getAg().believes(Literal.parseLiteral("myPos(X, Y)"), u) )
             {
                 throw new JasonException("Missing belief \"myPos\" ");
             }
-            if (!ts.getAg().believes(Literal.parseLiteral("goal(GX, GY)"), u) )
+            if (!ts.getAg().believes(Literal.parseLiteral("lastSeen(A, B)"), u) )
             {
-                throw new JasonException("Missing belief \"goal\" ");
+                throw new JasonException("Missing belief \"lastSeen\" ");
             }
             int x = (int)((NumberTerm) u.get("X")).solve();
             int y = (int)((NumberTerm) u.get("Y")).solve();
+
+            int xSeeker = (int) ((NumberTerm) u.get("A")).solve();
+            int ySeeker = (int) ((NumberTerm) u.get("B")).solve();
+
             Location pos = new Location(x, y);
-            
-            int gx = (int)((NumberTerm) u.get("GX")).solve();
-            int gy = (int)((NumberTerm) u.get("GY")).solve();
-            Location goal = new Location(gx, gy);
-            
-            // if(state.equals(sneaking) || state.equals(running))
-            //     goal = new Location(5, 5);
-            // if(state.equals(hiding))
-            // {
-            //     if (!ts.getAg().believes(Literal.parseLiteral("lastSeen(A, B)"), u) )
-            //     {
-            //         throw new JasonException("Missing belief \"lastSeen\" ");
-            //     }
-            //     int xSeeker = (int) ((NumberTerm) u.get("A")).solve();
-            //     int ySeeker = (int) ((NumberTerm) u.get("B")).solve();
-            //     goal = getHidingSpot(pos, xSeeker, ySeeker); 
-            // }
-            // if(state.equals(searching))
-            //     goal = Model.get().freePos(Playground.OBSTACLE);
-            // logger.info(state.toString().toUpperCase());
-            logger.info(": " + goal.toString());
-            AStar path = new AStar(pos, goal);
-
-            return new Iterator<Unifier>()
+            Location seeker = new Location(xSeeker, ySeeker);
+            Location other = null;
+            if (ts.getAg().believes(Literal.parseLiteral("occupied(X1, Y1)"), u) )
             {
-                public boolean hasNext()
-                {
-                    return !path.isEmpty();
-                }
+                int xOther = (int)((NumberTerm) u.get("X1")).solve();
+                int yOther = (int)((NumberTerm) u.get("Y1")).solve();
+                other = new Location(xOther, yOther);
+                logger.info("OCCUPIED");
+            }
+            
+            Location goal = getHidingSpot(pos, seeker, other);
 
-                public Unifier next()
-                {
-                    Direction dir = path.getNext();
-                    Unifier ret = un.clone();
-                    // logger.info(dir.name()); // TEST
-                    ret.unifies(args[0], Literal.parseLiteral(dir.name().toLowerCase()) );
-                    return ret;
-                }
-            };
+            un.unifies(args[0], new NumberTermImpl(goal.x));
+            un.unifies(args[1], new NumberTermImpl(goal.y));
+            return true;
         }
         catch (ArrayIndexOutOfBoundsException e)
         {
-            throw new JasonException("The internal action 'NextMove' has not received the required argument.");
+            throw new JasonException("The internal action 'GetHidingSpot' has not received the required argument.");
         }
         catch(Exception e)
         {
-            throw new JasonException("Error in internal action 'NextMove': " + e, e);
+            throw new JasonException("Error in internal action 'GetHidingSpot': " + e, e);
         }
     }
+
 }
