@@ -145,21 +145,7 @@ public class NextMove extends DefaultInternalAction
             int gy = (int)((NumberTerm) u.get("GY")).solve();
             Location goal = new Location(gx, gy);
             
-            // if(state.equals(sneaking) || state.equals(running))
-            //     goal = new Location(5, 5);
-            // if(state.equals(hiding))
-            // {
-            //     if (!ts.getAg().believes(Literal.parseLiteral("lastSeen(A, B)"), u) )
-            //     {
-            //         throw new JasonException("Missing belief \"lastSeen\" ");
-            //     }
-            //     int xSeeker = (int) ((NumberTerm) u.get("A")).solve();
-            //     int ySeeker = (int) ((NumberTerm) u.get("B")).solve();
-            //     goal = getHidingSpot(pos, xSeeker, ySeeker); 
-            // }
-            // if(state.equals(searching))
-            //     goal = Model.get().freePos(Playground.OBSTACLE);
-            // logger.info(state.toString().toUpperCase());
+            
             logger.info(": " + goal.toString());
             AStar path = new AStar(pos, goal);
 
