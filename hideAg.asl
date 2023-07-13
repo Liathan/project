@@ -11,7 +11,7 @@ lastSeen(5, 5). //MAGIC NUMBER
 
 /* Plans */
 @pos[atomic]
-+pos(seeker, X, Y) : state(ST) & ST \== hiding & .my_name(S) & not seen(S)[source(seeker)] <- -+lastSeen(X, Y); -+state(hiding); .drop_all_intentions; helper.GetHidingSpot(A, B); -+spot(A, B); !!hide.
++pos(seeker, X, Y) : state(ST) & ST \== hiding & .my_name(S) & not seen(S)[source(seeker)] <- -+lastSeen(X, Y); -+state(hiding); .drop_all_intentions; helper.GetHidingSpot(A, B); -+goal(A, B); !!hide.
 +pos(seeker, X, Y) : .my_name(S) & not seen(S)[source(seeker)] <- -+lastSeen(X, Y); . // se non mi ha visto e mi sto già nascondendo, cambio solo l'ultima poszione nota
 
 @found[atomic]
