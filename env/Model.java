@@ -208,6 +208,7 @@ public class Model extends GridWorldModel
 
         Direction peekDir1 = peekDir(pos, adj[1]); // le direzioni diagonali
         Direction peekDir2 = peekDir(pos, adj[3]);
+        //logger.info(String.format("%s-----------------%s", peekDir1.toString(), peekDir2.toString())); // TEST
         if(peekDir1 != null)
         {
             Direction see;
@@ -231,6 +232,7 @@ public class Model extends GridWorldModel
                 if(hasObject(AGENT, tmp))
                 {
                     ret.add( tmp );
+                    //logger.info("------------"+tmp.toString()); // TEST
                 }
                 tmp = Direction.nextInDir(tmp, see);
             }
@@ -259,6 +261,7 @@ public class Model extends GridWorldModel
                 if(hasObject(AGENT, tmp))
                 {
                     ret.add( tmp );
+                    //logger.info("+++++++++++"+tmp.toString()); // TEST
                 }
                 tmp = Direction.nextInDir(tmp, see);
             }
