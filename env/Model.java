@@ -16,6 +16,7 @@ public class Model extends GridWorldModel
     private Random rnd;
  
     public static Model model = null;
+    static Logger logger = Logger.getLogger(Model.class.getName());
 
     public int countdown = 8;
     public Direction[] lastMovements;
