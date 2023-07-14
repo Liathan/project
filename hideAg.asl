@@ -59,7 +59,7 @@ lastSeen(5, 5). //MAGIC NUMBER
 -!run <- !run.
 
 +!hide <- for(helper.NextMove(DIR)) { move(DIR);} !!wait.
--!hide <- !hide.
+-!hide <- helper.RandomHelp(DIR); move(DIR); !hide. // se la move fallisce, vuol dire che voglio andare in una cella in cui c'è già un agente e lui non si è spostato, quindi evito il conflitto
 
 +!wait <- for(.range(X, 0, 5)) { lookAround;} !!sneak. //TODO
 
@@ -80,7 +80,7 @@ lastSeen(5, 5). //MAGIC NUMBER
                 -+num(X +1);
             } 
             !free.
--!sneak <- !sneak.
+-!sneak <- helper.RandomHelp(DIR); move(DIR); !sneak.
             
 +!free : remaining(1) <- .my_name(S); .broadcast(tell, free(S)); .send(seeker, tell, lost); .print("Tana libera tutti"); .drop_all_intentions; die. // se l'agente è l'ultimo e si libera fa tana libera tutti
 +!free <- .my_name(S); .broadcast(tell, free(S)); .print("Sono libero"); .drop_all_intentions; die.

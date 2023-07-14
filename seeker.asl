@@ -12,7 +12,7 @@ home(5, 5).//MAGIC NUMBER
 +!count <- count; !count. // l'azione count fallisce quando ha terminato la conta
 -!count <- !!seek.
 
-+!seek <-   helper.RandomCell(X, Y);
++!seek <-   helper.RandomHelp(X, Y); // con 2 argomenti unifica con una cella libera casuale
             -+goal(X, Y);
             -+num(1); 
             for(helper.NextMove(DIR))
@@ -24,10 +24,11 @@ home(5, 5).//MAGIC NUMBER
                 move(DIR);
             }
             !seek. 
--!seek <- !seek.
+-!seek <- helper.RandomHelp(DIR); move(DIR); !seek. // con un solo argomento unifica con una direzione casuale
 
 // Quando vedo qualcuno, provo a catturarlo prima che si liberi
 +!runHome <- -+goal(5, 5); for(helper.NextMove(DIR)) { move(DIR);}; .findall(S, seen(S), L); for(.member(X, L)) { .broadcast(tell, found(X));} -+state(searching); !!seek .
+-!runHome <- !runHome.
 
 @free[atomic]
 +free(S)[source(S)] : seen(S) <- -seen(S); .drop_all_intentions; !!seek.
