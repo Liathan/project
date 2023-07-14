@@ -82,4 +82,5 @@ lastSeen(5, 5). //MAGIC NUMBER
             !free.
 -!sneak <- !sneak.
             
++!free : remaining(1) <- .my_name(S); .broadcast(tell, free(S)); .send(seeker, tell, lost); .print("Tana libera tutti"); .drop_all_intentions; die. // se l'agente è l'ultimo e si libera fa tana libera tutti
 +!free <- .my_name(S); .broadcast(tell, free(S)); .print("Sono libero"); .drop_all_intentions; die.

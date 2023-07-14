@@ -83,7 +83,7 @@ public class Playground extends Environment {
                 addPercept(name, seen);
             }
         }
-        addPercept("seeker", Literal.parseLiteral("remaining("+(liveAgents.size() - 1)+")"));
+        addPercept(Literal.parseLiteral("remaining("+(liveAgents.size() - 1)+")"));
         if(model.counting)
         {
             Literal pos = Literal.parseLiteral("pos(seeker," +model.home.x+","+model.home.y+" )");

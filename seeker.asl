@@ -35,4 +35,6 @@ home(5, 5).//MAGIC NUMBER
 @pos[atomic]
 +pos(X, _, _) : X \== seeker <- .drop_all_intentions; .broadcast(tell, seen(X)); ?myPos(A, B); .broadcast(tell, pos(seeker, A, B)); -+state(running); +seen(X); !!runHome.
 
-+remaining(Z) : Z == 0 <- .print("THE END!!!"); .drop_all_intentions.
++lost <- .print("I lost... :("); .drop_all_intentions.
+
++remaining(0) : not lost <- .print("I WIN!!!"); .drop_all_intentions.
