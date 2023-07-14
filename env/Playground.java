@@ -151,7 +151,7 @@ public class Playground extends Environment {
         }
         updatePercepts();
         try {
-            Thread.sleep(300);
+            Thread.sleep(500);
         } catch (Exception e) {}
         informAgsEnvironmentChanged();
         return result;
