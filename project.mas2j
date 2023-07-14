@@ -15,5 +15,5 @@ MAS project {
     
     environment: env.Playground
     
-    agents: seeker; hideAg#2;
+    agents: seeker; hideAg#4;
 }

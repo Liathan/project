@@ -21,7 +21,7 @@ public class Playground extends Environment {
     public static final int GSize = 11; // TODO: Ingrandire la griglia se decido di randomizzare l'ambiente
     public static final int OBSTACLE = 4;
     public static final int HOME = 8;
-    public static final int NUMAG = 3;
+    public static final int NUMAG = 5;
     public static ConcurrentLinkedQueue<Integer> liveAgents;
 
     static Logger logger = Logger.getLogger(Playground.class.getName());
