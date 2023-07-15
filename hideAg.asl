@@ -15,7 +15,7 @@ lastSeen(5, 5). //MAGIC NUMBER
 +pos(seeker, X, Y) : .my_name(S) & not seen(S)[source(seeker)] <- -+lastSeen(X, Y); . // se non mi ha visto e mi sto già nascondendo, cambio solo l'ultima poszione nota
 
 @found[atomic]
-+found(S)[source(seeker)] : .my_name(S) <- .print("NOOOOOOO"); .drop_all_intentions; die.
++found(S)[source(seeker)] : .my_name(S) <- .drop_all_intentions; .print("NOOOOOOO"); die.
 +found(S)[source(seeker)] <- .print("Bummer").
 
 @seen[atomic]
