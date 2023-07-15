@@ -58,4 +58,4 @@ lost :- numFound(FD) & numFree(FR) & FR > FD.
 //+lost <- .print("I lost... :("); .drop_all_intentions.
 
 +remaining(0) : not lost <- .print("I WIN!!!"); .drop_all_intentions.
-+remaining(0) <- .print("I lost... :("); drop_all_intentions.
++remaining(0) <- .print("I lost... :("); .drop_all_intentions.
