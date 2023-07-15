@@ -167,9 +167,9 @@ public class Playground extends Environment {
             e.printStackTrace();
         }
         updatePercepts();
-        try {
-            Thread.sleep(500);
-        } catch (Exception e) {}
+        // try {
+        //     Thread.sleep(500);
+        // } catch (Exception e) {}
         informAgsEnvironmentChanged();
         return result;
 
