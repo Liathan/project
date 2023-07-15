@@ -117,7 +117,7 @@ public class Model extends GridWorldModel
     public boolean count()
     {
         countdown--;
-        if(countdown < 0)
+        if(countdown <= 0)
             counting = false;
         return counting;
     }
@@ -159,7 +159,9 @@ public class Model extends GridWorldModel
         Direction dir = lastMovements[ag];
         // A volte lo scheduler fa in modo che venga vision venga chiamato su un agente che non esiste più (liberato/trovato), quindi aggiungo questo controllo
         if(dir == null)
+        {
             return new ArrayList<Location>();
+        }
         return vision(ag, dir);
     }
 

@@ -77,7 +77,12 @@ public class Playground extends Environment {
             
             for(Location sawloc : model.vision(i)) //model.vision restituisce le posizioni degli agenti visti o un array vuoto
             {
-                String seenName = id2Name(model.getAgAtPos(sawloc));
+                int id = model.getAgAtPos(sawloc);
+                if(id == -1)
+                {
+                    continue; //a volte lo scheduling permette che tra la fine della vision e questa chiamata l'agente si sia già spostato o liberato
+                }
+                String seenName = id2Name(id);
                 String s = "pos("+ seenName +", "+sawloc.x+", "+sawloc.y+ ")";
                 Literal seen = Literal.parseLiteral(s);
                 addPercept(name, seen);
@@ -111,7 +116,9 @@ public class Playground extends Environment {
             else if (action.equals(count))
                 result = model.count();
             else if (action.equals(die))
+            {
                 result = model.die(agId);
+            }
             else if (action.equals(lookAround))
             {
                 // logger.info("-----------------"+model.canPeek(1, Direction.DOWN_LEFT)); //TEST
@@ -119,7 +126,12 @@ public class Playground extends Environment {
                 ArrayList<Location> l = model.lookAround(agId);
                 for(Location sawloc : l)
                 {
-                    String seenName = id2Name(model.getAgAtPos(sawloc));
+                    int id = model.getAgAtPos(sawloc);
+                    if(id == -1)
+                    {
+                        continue; //a volte lo scheduling permette che tra la fine della vision e questa chiamata l'agente si sia già spostato o liberato
+                    }
+                    String seenName = id2Name(id);
                     String s = "pos("+ seenName +", "+sawloc.x+", "+sawloc.y+ ")";
                     Literal seen = Literal.parseLiteral(s);
                     addPercept(ag, seen);
@@ -133,7 +145,12 @@ public class Playground extends Environment {
                 for(Location sawloc: l)
                 {
                     // logger.info(sawloc.toString()); // TEST
-                    String seenName = id2Name(model.getAgAtPos(sawloc));
+                    int id = model.getAgAtPos(sawloc);
+                    if(id == -1)
+                    {
+                        continue; //a volte lo scheduling permette che tra la fine della peek e questa chiamata l'agente si sia già spostato o liberato
+                    }
+                    String seenName = id2Name(id);
                     String s = "pos("+ seenName +", "+sawloc.x+", "+sawloc.y+ ")";
                     Literal seen = Literal.parseLiteral(s);
                     addPercept(ag, seen);
