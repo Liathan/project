@@ -63,6 +63,12 @@ public class Playground extends Environment {
     private void updatePercepts()
     {
         clearPercepts();
+        addPercept(Literal.parseLiteral("remaining("+(liveAgents.size() - 1)+")"));
+        if(model.counting)
+        {
+            Literal pos = Literal.parseLiteral("pos(seeker," +model.home.x+","+model.home.y+" )");
+            addPercept(pos);
+        }
         
         for(Integer i : liveAgents) // Gli agenti trovati non devono più essere aggiornati
         {
@@ -87,12 +93,6 @@ public class Playground extends Environment {
                 Literal seen = Literal.parseLiteral(s);
                 addPercept(name, seen);
             }
-        }
-        addPercept(Literal.parseLiteral("remaining("+(liveAgents.size() - 1)+")"));
-        if(model.counting)
-        {
-            Literal pos = Literal.parseLiteral("pos(seeker," +model.home.x+","+model.home.y+" )");
-            addPercept(pos);
         }
     }
 
