@@ -1,4 +1,5 @@
 bin/*
 project.code-workspace
 *~
-MAS_project.pdf
+*.pdf
+*.zip
