@@ -11,6 +11,7 @@ lastSeen(5, 5). //MAGIC NUMBER
 
 /* Plans */
 @pos[atomic]
+                     // Probabilmente ha più senso cambiare in ST == sneaking, perchè non voglio nascondermi nemmeno se sto correndo
 +pos(seeker, X, Y) : state(ST) & ST \== hiding & .my_name(S) & not seen(S)[source(seeker)] & myPos(AA, BB) & (AA \== 5 | BB \== 5) <- -+lastSeen(X, Y); -+state(hiding); .drop_all_intentions; helper.GetHidingSpot(A, B); -+goal(A, B); !!hide.
 +pos(seeker, X, Y) : .my_name(S) & not seen(S)[source(seeker)] <- -+lastSeen(X, Y); . // se non mi ha visto e mi sto già nascondendo, cambio solo l'ultima poszione nota
 
