@@ -1,0 +1,20 @@
+/*
+    Hide n Seek
+    ---------------------------
+
+    Jason Project File
+
+    This file defines the initial state of the MAS
+
+    Jason 3.1
+*/
+
+MAS rl_training {
+
+    infrastructure: Local
+
+	environment: TrainingEnv
+	
+    agents: hiding_RL_;
+			seeker_RL_;
+}
