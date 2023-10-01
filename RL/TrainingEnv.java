@@ -21,51 +21,54 @@ public class TrainingEnv extends Environment {
 	private int numberOfhidings = 4;
 	
 	private List<String> hidingPlausibleActionsForState = new ArrayList<String>();
-	private List<String> seekerPlausibleActionsForState = new ArrayList<String>();
+	private List<String> seekerPlausibleActionsForState = new ArrayList<String>(); // Probabilmente inutile: in ogni stato tutte le azioni sono valide
 	
 	@Override
 	public void init(String[] args) {
 		
-		hidingPlausibleActionsForState.add("standing_look");
-		hidingPlausibleActionsForState.add("standing_move");
-		hidingPlausibleActionsForState.add("taskDetected_look");
-		hidingPlausibleActionsForState.add("taskDetected_repair");
-		hidingPlausibleActionsForState.add("taskDetected_move");
-		hidingPlausibleActionsForState.add("nothingToDo_look");
-		hidingPlausibleActionsForState.add("nothingToDo_move");
-		hidingPlausibleActionsForState.add("wasFixing_trust");
-		hidingPlausibleActionsForState.add("wasKilling_untrust");
-		hidingPlausibleActionsForState.add("reported_trustAccuser_voteForAccuser");
-		hidingPlausibleActionsForState.add("reported_trustAccuser_voteForAccused");
-		hidingPlausibleActionsForState.add("reported_trustAccuser_dontVote");
-		hidingPlausibleActionsForState.add("reported_trustAccused_voteForAccuser");
-		hidingPlausibleActionsForState.add("reported_trustAccused_voteForAccused");
-		hidingPlausibleActionsForState.add("reported_trustAccused_dontVote");
-		hidingPlausibleActionsForState.add("reported_untrustAccuser_voteForAccuser");
-		hidingPlausibleActionsForState.add("reported_untrustAccuser_voteForAccused");
-		hidingPlausibleActionsForState.add("reported_untrustAccuser_dontVote");
-		hidingPlausibleActionsForState.add("reported_untrustAccused_voteForAccuser");
-		hidingPlausibleActionsForState.add("reported_untrustAccused_voteForAccused");
-		hidingPlausibleActionsForState.add("reported_untrustAccused_dontVote");
-		hidingPlausibleActionsForState.add("reported_dontknow_dontVote");
-		hidingPlausibleActionsForState.add("advantageReceived_report");
+		// Il primo booleano dice se può fare la peek nello stato, quindi se è false la peek non è valida
+		// Forse ha senso non usare una lista di stati plausibili ma controllare il primo bool 
+		hidingPlausibleActionsForState.add("hide_false_false_move");
+		hidingPlausibleActionsForState.add("hide_false_false_lookAround");
+		hidingPlausibleActionsForState.add("hide_false_true_move");
+		hidingPlausibleActionsForState.add("hide_false_true_lookAround");
+		hidingPlausibleActionsForState.add("hide_true_false_move");
+		hidingPlausibleActionsForState.add("hide_true_false_peek");
+		hidingPlausibleActionsForState.add("hide_true_false_lookAround");
+		hidingPlausibleActionsForState.add("hide_true_true_move");
+		hidingPlausibleActionsForState.add("hide_true_true_peek");
+		hidingPlausibleActionsForState.add("hide_true_true_lookAround");
+
+		hidingPlausibleActionsForState.add("sneak_false_false_move");
+		hidingPlausibleActionsForState.add("sneak_false_false_lookAround");
+		hidingPlausibleActionsForState.add("sneak_false_true_move");
+		hidingPlausibleActionsForState.add("sneak_false_true_lookAround");
+		hidingPlausibleActionsForState.add("sneak_true_false_move");
+		hidingPlausibleActionsForState.add("sneak_true_false_peek");
+		hidingPlausibleActionsForState.add("sneak_true_false_lookAround");
+		hidingPlausibleActionsForState.add("sneak_true_true_move");
+		hidingPlausibleActionsForState.add("sneak_true_true_peek");
+		hidingPlausibleActionsForState.add("sneak_true_true_lookAround");
+
+		hidingPlausibleActionsForState.add("run_false_false_move");
+		hidingPlausibleActionsForState.add("run_false_false_lookAround");
+		hidingPlausibleActionsForState.add("run_false_true_move");
+		hidingPlausibleActionsForState.add("run_false_true_lookAround");
+		hidingPlausibleActionsForState.add("run_true_false_move");
+		hidingPlausibleActionsForState.add("run_true_false_peek");
+		hidingPlausibleActionsForState.add("run_true_false_lookAround");
+		hidingPlausibleActionsForState.add("run_true_true_move");
+		hidingPlausibleActionsForState.add("run_true_true_peek");
+		hidingPlausibleActionsForState.add("run_true_true_lookAround");
 		
-		seekerPlausibleActionsForState.add("standing_look");
-		seekerPlausibleActionsForState.add("standing_move");
-		seekerPlausibleActionsForState.add("found1_look");
-		seekerPlausibleActionsForState.add("found1_deceive");
-		seekerPlausibleActionsForState.add("found1_kill");
-		seekerPlausibleActionsForState.add("found1_move");
-		seekerPlausibleActionsForState.add("found2orMore_look");
-		seekerPlausibleActionsForState.add("found2orMore_deceive");
-		seekerPlausibleActionsForState.add("found2orMore_kill");
-		seekerPlausibleActionsForState.add("found2orMore_move");
-		seekerPlausibleActionsForState.add("goalAccomplished_look");
-		seekerPlausibleActionsForState.add("goalAccomplished_move");
-		seekerPlausibleActionsForState.add("notFound_look");
-		seekerPlausibleActionsForState.add("notFound_move");
-		seekerPlausibleActionsForState.add("advantageReceived_report");
-		seekerPlausibleActionsForState.add("reported_dontVote");
+		seekerPlausibleActionsForState.add("search_false_move"); // Probabilmente tutte inutili: vedi sopra
+		seekerPlausibleActionsForState.add("search_false_lookAround");
+		seekerPlausibleActionsForState.add("search_true_move");
+		seekerPlausibleActionsForState.add("search_true_lookAround");
+		seekerPlausibleActionsForState.add("run_false_move");
+		seekerPlausibleActionsForState.add("run_false_lookAround");
+		seekerPlausibleActionsForState.add("run_true_move");
+		seekerPlausibleActionsForState.add("run_true_lookAround");
 		
 		addPercept("hiding_RL_",Literal.parseLiteral("start"));
 		addPercept("seeker_RL_",Literal.parseLiteral("start"));
@@ -123,7 +126,8 @@ public class TrainingEnv extends Environment {
 					reward = -1;
 				
 				String newState = "";
-				
+
+				//TODO: cambiare le transizioni
 				if (key.equals("standing_look"))
 					newState = oneOf("taskDetected","nothingToDo");
 				else if (state.equals("taskDetected") && !key.equals("taskDetected_repair"))
@@ -199,13 +203,14 @@ public class TrainingEnv extends Environment {
 				
 				String key = state + "_" + actionName;
 				int reward;
-				if (seekerPlausibleActionsForState.contains(key))
+				if (seekerPlausibleActionsForState.contains(key)) // Rimuovere (?)
 					reward = 0;
 				else
 					reward = -1;
 				
 				String newState = "";
 				
+				//TODO: cambiare transizioni
 				if (key.equals("standing_look"))
 					newState = oneOf("found1","found2orMore","notFound");
 				else if (key.equals("found1_look") || key.equals("found1_report") || key.equals("found1_dontVote"))
