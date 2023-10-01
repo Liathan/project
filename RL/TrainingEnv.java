@@ -9,86 +9,88 @@ import java.util.TimerTask;
 public class TrainingEnv extends Environment {
 
 	private Logger logger = Logger.getLogger("rl_training.mas2j."+TrainingEnv.class.getName());
-	private int crewmateIterations = 0;
-	private int crewmateSubIterations = 0;
-	private int impostorIterations = 0;
-	private int impostorSubIterations = 0;
-	private double crewmateEpsilon = 0.3;
-	private double impostorEpsilon = 0.3;
-	private int numberOfTasks = 5;
-	private int numberOfImpostors = 4;
-	private int numberOfCrewmates = 5;
-	private List<String> crewmatePlausibleActionsForState = new ArrayList<String>();
-	private List<String> impostorPlausibleActionsForState = new ArrayList<String>();
+	private int hidingIterations = 0;
+	// private int hidingSubIterations = 0;
+	private int seekerIterations = 0;
+	// private int seekerSubIterations = 0;
+	private double hidingEpsilon = 0.3;
+	private double seekerEpsilon = 0.3;
+
+	// private int numberOfTasks = 5;
+	// private int numberOfseekers = 4;
+	private int numberOfhidings = 4;
+	
+	private List<String> hidingPlausibleActionsForState = new ArrayList<String>();
+	private List<String> seekerPlausibleActionsForState = new ArrayList<String>();
 	
 	@Override
 	public void init(String[] args) {
 		
-		crewmatePlausibleActionsForState.add("standing_look");
-		crewmatePlausibleActionsForState.add("standing_move");
-		crewmatePlausibleActionsForState.add("taskDetected_look");
-		crewmatePlausibleActionsForState.add("taskDetected_repair");
-		crewmatePlausibleActionsForState.add("taskDetected_move");
-		crewmatePlausibleActionsForState.add("nothingToDo_look");
-		crewmatePlausibleActionsForState.add("nothingToDo_move");
-		crewmatePlausibleActionsForState.add("wasFixing_trust");
-		crewmatePlausibleActionsForState.add("wasKilling_untrust");
-		crewmatePlausibleActionsForState.add("reported_trustAccuser_voteForAccuser");
-		crewmatePlausibleActionsForState.add("reported_trustAccuser_voteForAccused");
-		crewmatePlausibleActionsForState.add("reported_trustAccuser_dontVote");
-		crewmatePlausibleActionsForState.add("reported_trustAccused_voteForAccuser");
-		crewmatePlausibleActionsForState.add("reported_trustAccused_voteForAccused");
-		crewmatePlausibleActionsForState.add("reported_trustAccused_dontVote");
-		crewmatePlausibleActionsForState.add("reported_untrustAccuser_voteForAccuser");
-		crewmatePlausibleActionsForState.add("reported_untrustAccuser_voteForAccused");
-		crewmatePlausibleActionsForState.add("reported_untrustAccuser_dontVote");
-		crewmatePlausibleActionsForState.add("reported_untrustAccused_voteForAccuser");
-		crewmatePlausibleActionsForState.add("reported_untrustAccused_voteForAccused");
-		crewmatePlausibleActionsForState.add("reported_untrustAccused_dontVote");
-		crewmatePlausibleActionsForState.add("reported_dontknow_dontVote");
-		crewmatePlausibleActionsForState.add("advantageReceived_report");
+		hidingPlausibleActionsForState.add("standing_look");
+		hidingPlausibleActionsForState.add("standing_move");
+		hidingPlausibleActionsForState.add("taskDetected_look");
+		hidingPlausibleActionsForState.add("taskDetected_repair");
+		hidingPlausibleActionsForState.add("taskDetected_move");
+		hidingPlausibleActionsForState.add("nothingToDo_look");
+		hidingPlausibleActionsForState.add("nothingToDo_move");
+		hidingPlausibleActionsForState.add("wasFixing_trust");
+		hidingPlausibleActionsForState.add("wasKilling_untrust");
+		hidingPlausibleActionsForState.add("reported_trustAccuser_voteForAccuser");
+		hidingPlausibleActionsForState.add("reported_trustAccuser_voteForAccused");
+		hidingPlausibleActionsForState.add("reported_trustAccuser_dontVote");
+		hidingPlausibleActionsForState.add("reported_trustAccused_voteForAccuser");
+		hidingPlausibleActionsForState.add("reported_trustAccused_voteForAccused");
+		hidingPlausibleActionsForState.add("reported_trustAccused_dontVote");
+		hidingPlausibleActionsForState.add("reported_untrustAccuser_voteForAccuser");
+		hidingPlausibleActionsForState.add("reported_untrustAccuser_voteForAccused");
+		hidingPlausibleActionsForState.add("reported_untrustAccuser_dontVote");
+		hidingPlausibleActionsForState.add("reported_untrustAccused_voteForAccuser");
+		hidingPlausibleActionsForState.add("reported_untrustAccused_voteForAccused");
+		hidingPlausibleActionsForState.add("reported_untrustAccused_dontVote");
+		hidingPlausibleActionsForState.add("reported_dontknow_dontVote");
+		hidingPlausibleActionsForState.add("advantageReceived_report");
 		
-		impostorPlausibleActionsForState.add("standing_look");
-		impostorPlausibleActionsForState.add("standing_move");
-		impostorPlausibleActionsForState.add("found1_look");
-		impostorPlausibleActionsForState.add("found1_deceive");
-		impostorPlausibleActionsForState.add("found1_kill");
-		impostorPlausibleActionsForState.add("found1_move");
-		impostorPlausibleActionsForState.add("found2orMore_look");
-		impostorPlausibleActionsForState.add("found2orMore_deceive");
-		impostorPlausibleActionsForState.add("found2orMore_kill");
-		impostorPlausibleActionsForState.add("found2orMore_move");
-		impostorPlausibleActionsForState.add("goalAccomplished_look");
-		impostorPlausibleActionsForState.add("goalAccomplished_move");
-		impostorPlausibleActionsForState.add("notFound_look");
-		impostorPlausibleActionsForState.add("notFound_move");
-		impostorPlausibleActionsForState.add("advantageReceived_report");
-		impostorPlausibleActionsForState.add("reported_dontVote");
+		seekerPlausibleActionsForState.add("standing_look");
+		seekerPlausibleActionsForState.add("standing_move");
+		seekerPlausibleActionsForState.add("found1_look");
+		seekerPlausibleActionsForState.add("found1_deceive");
+		seekerPlausibleActionsForState.add("found1_kill");
+		seekerPlausibleActionsForState.add("found1_move");
+		seekerPlausibleActionsForState.add("found2orMore_look");
+		seekerPlausibleActionsForState.add("found2orMore_deceive");
+		seekerPlausibleActionsForState.add("found2orMore_kill");
+		seekerPlausibleActionsForState.add("found2orMore_move");
+		seekerPlausibleActionsForState.add("goalAccomplished_look");
+		seekerPlausibleActionsForState.add("goalAccomplished_move");
+		seekerPlausibleActionsForState.add("notFound_look");
+		seekerPlausibleActionsForState.add("notFound_move");
+		seekerPlausibleActionsForState.add("advantageReceived_report");
+		seekerPlausibleActionsForState.add("reported_dontVote");
 		
-		addPercept("crewmate_RL_",Literal.parseLiteral("start"));
-		addPercept("impostor_RL_",Literal.parseLiteral("start"));
+		addPercept("hiding_RL_",Literal.parseLiteral("start"));
+		addPercept("seeker_RL_",Literal.parseLiteral("start"));
 		
-		new Timer().scheduleAtFixedRate(new TimerTask() {
-			private int runs = 0;
-			public void run() {
-				String newSubState = oneOf("wasFixing","wasKilling","reported_trustAccuser","reported_trustAccused","reported_untrustAccuser","reported_untrustAccused","reported_dontknow","advantageReceived");
-				removePercept("crewmate_RL_",Literal.parseLiteral("newSubState("+newSubState+")"));
-				addPercept("crewmate_RL_",Literal.parseLiteral("newSubState("+newSubState+")"));
-				if (++runs > 2000)
-					cancel();
-			}
-		}, 0, 500);
+		// new Timer().scheduleAtFixedRate(new TimerTask() {
+		// 	private int runs = 0;
+		// 	public void run() {
+		// 		String newSubState = oneOf("wasFixing","wasKilling","reported_trustAccuser","reported_trustAccused","reported_untrustAccuser","reported_untrustAccused","reported_dontknow","advantageReceived");
+		// 		removePercept("hiding_RL_",Literal.parseLiteral("newSubState("+newSubState+")"));
+		// 		addPercept("hiding_RL_",Literal.parseLiteral("newSubState("+newSubState+")"));
+		// 		if (++runs > 2000)
+		// 			cancel();
+		// 	}
+		// }, 0, 500);
 		
-		new Timer().scheduleAtFixedRate(new TimerTask() {
-			private int runs = 0;
-			public void run() {
-				String newSubState = oneOf("advantageReceived","reported");
-				removePercept("impostor_RL_",Literal.parseLiteral("newSubState("+newSubState+")"));
-				addPercept("impostor_RL_",Literal.parseLiteral("newSubState("+newSubState+")"));
-				if (++runs > 500)
-					cancel();
-			}
-		}, 0, 500);
+		// new Timer().scheduleAtFixedRate(new TimerTask() {
+		// 	private int runs = 0;
+		// 	public void run() {
+		// 		String newSubState = oneOf("advantageReceived","reported");
+		// 		removePercept("seeker_RL_",Literal.parseLiteral("newSubState("+newSubState+")"));
+		// 		addPercept("seeker_RL_",Literal.parseLiteral("newSubState("+newSubState+")"));
+		// 		if (++runs > 500)
+		// 			cancel();
+		// 	}
+		// }, 0, 500);
 		
 	}
 	
@@ -100,22 +102,22 @@ public class TrainingEnv extends Environment {
 	 @Override
 	public synchronized boolean executeAction(String player, Structure action) {
 		
-		if (player.startsWith("crewmate") && action.getFunctor().equals("executeAction")) {
+		if (player.startsWith("hiding") && action.getFunctor().equals("executeAction")) {
 			
-			if(crewmateIterations >= 500) {
-				addPercept("crewmate_RL_",Literal.parseLiteral("showValues"));
+			if(hidingIterations >= 500) { //TODO: cambiare numero (?)
+				addPercept("hiding_RL_",Literal.parseLiteral("showValues"));
 				return true;
 			}
 			
 			String actionName = action.getTerm(0).toString();
 			String state = action.getTerm(1).toString();
-			String subState = action.getTerm(2).toString();
+			// String subState = action.getTerm(2).toString();
 			
-			if(subState.equals("noSubState")) {
+			// if(subState.equals("noSubState")) {
 				
 				String key = state + "_" + actionName;
 				int reward;
-				if (crewmatePlausibleActionsForState.contains(key))
+				if (hidingPlausibleActionsForState.contains(key))
 					reward = 0;
 				else
 					reward = -1;
@@ -141,63 +143,63 @@ public class TrainingEnv extends Environment {
 					numberOfTasks = 5;
 				}
 				
-				crewmateIterations++;
+				hidingIterations++;
 				
-				if (crewmateIterations % 100 == 0 && crewmateEpsilon < 0.8) {
-					removePercept("crewmate_RL_",Literal.parseLiteral("updateEpsilon("+crewmateEpsilon+")"));
-					crewmateEpsilon = crewmateEpsilon + 0.05;
-					addPercept("crewmate_RL_",Literal.parseLiteral("updateEpsilon("+crewmateEpsilon+")"));
+				if (hidingIterations % 100 == 0 && hidingEpsilon < 0.8) {
+					removePercept("hiding_RL_",Literal.parseLiteral("updateEpsilon("+hidingEpsilon+")"));
+					hidingEpsilon = hidingEpsilon + 0.05;
+					addPercept("hiding_RL_",Literal.parseLiteral("updateEpsilon("+hidingEpsilon+")"));
 				}
 			
-				addPercept("crewmate_RL_",Literal.parseLiteral("newState("+newState+","+reward+","+crewmateIterations+")"));
+				addPercept("hiding_RL_",Literal.parseLiteral("newState("+newState+","+reward+","+hidingIterations+")"));
 				
-			} else {
+			// } else {
 				
-				String key = subState + "_" + actionName;
-				int reward;
-				if (crewmatePlausibleActionsForState.contains(key))
-					reward = 0;
-				else
-					reward = -1;
+			// 	String key = subState + "_" + actionName;
+			// 	int reward;
+			// 	if (hidingPlausibleActionsForState.contains(key))
+			// 		reward = 0;
+			// 	else
+			// 		reward = -1;
 				
-				if (key.equals("reported_trustAccused_voteForAccuser") || key.equals("reported_trustAccuser_voteForAccused")
-						|| key.equals("reported_untrustAccused_voteForAccused") || key.equals("reported_untrustAccuser_voteForAccuser")) {
-					Random rand = new Random();
-					int result = rand.nextInt(2);
-					if (result == 1) {
-						numberOfImpostors--;
-						reward = 1;
-					}
-				}
+			// 	if (key.equals("reported_trustAccused_voteForAccuser") || key.equals("reported_trustAccuser_voteForAccused")
+			// 			|| key.equals("reported_untrustAccused_voteForAccused") || key.equals("reported_untrustAccuser_voteForAccuser")) {
+			// 		Random rand = new Random();
+			// 		int result = rand.nextInt(2);
+			// 		if (result == 1) {
+			// 			numberOfseekers--;
+			// 			reward = 1;
+			// 		}
+			// 	}
 				
-				if (numberOfImpostors == 0) {	//episode concluded, starting new episode
-					reward = 100;
-					numberOfImpostors = 4;
-				}
+			// 	if (numberOfseekers == 0) {	//episode concluded, starting new episode
+			// 		reward = 100;
+			// 		numberOfseekers = 4;
+			// 	}
 				
-				crewmateSubIterations++;
+			// 	hidingSubIterations++;
 				
-				addPercept("crewmate_RL_",Literal.parseLiteral("rewardForSubState("+subState+","+actionName+","+reward+","+crewmateSubIterations+")"));
-			}
+			// 	addPercept("hiding_RL_",Literal.parseLiteral("rewardForSubState("+subState+","+actionName+","+reward+","+hidingSubIterations+")"));
+			// }
 			
 			return true;
 			
-		} else if (player.startsWith("impostor") && action.getFunctor().equals("executeAction")) {
+		} else if (player.startsWith("seeker") && action.getFunctor().equals("executeAction")) {
 			
-			if(impostorIterations >= 2000) {
-				addPercept("impostor_RL_",Literal.parseLiteral("showValues"));
+			if(seekerIterations >= 2000) {
+				addPercept("seeker_RL_",Literal.parseLiteral("showValues"));
 				return true;
 			}
 			
 			String actionName = action.getTerm(0).toString();
 			String state = action.getTerm(1).toString();
-			String subState = action.getTerm(2).toString();
+			// String subState = action.getTerm(2).toString();
 			
-			if (subState.equals("noSubState")) {
+			// if (subState.equals("noSubState")) {
 				
 				String key = state + "_" + actionName;
 				int reward;
-				if (impostorPlausibleActionsForState.contains(key))
+				if (seekerPlausibleActionsForState.contains(key))
 					reward = 0;
 				else
 					reward = -1;
@@ -223,41 +225,41 @@ public class TrainingEnv extends Environment {
 				
 				if (key.equals("found1_kill")) {
 					reward = 10;
-					numberOfCrewmates--;
+					numberOfhidings--;
 				}
 				
 				if (key.equals("found2orMore_deceive")) {
 					reward = 1;
 				}
 			
-				if (numberOfCrewmates == 0) {
+				if (numberOfhidings == 0) {
 					reward = 100;
-					numberOfCrewmates = 5;
+					numberOfhidings = 4;
 				}
 				
-				impostorIterations++;
+				seekerIterations++;
 			
-				if (impostorIterations % 100 == 0 && impostorEpsilon < 0.8) {
-					removePercept("impostor_RL_",Literal.parseLiteral("updateEpsilon("+impostorEpsilon+")"));
-					impostorEpsilon = impostorEpsilon + 0.05;
-					addPercept("impostor_RL_",Literal.parseLiteral("updateEpsilon("+impostorEpsilon+")"));
+				if (seekerIterations % 100 == 0 && seekerEpsilon < 0.8) {
+					removePercept("seeker_RL_",Literal.parseLiteral("updateEpsilon("+seekerEpsilon+")"));
+					seekerEpsilon = seekerEpsilon + 0.05;
+					addPercept("seeker_RL_",Literal.parseLiteral("updateEpsilon("+seekerEpsilon+")"));
 				}
 				
-				addPercept("impostor_RL_",Literal.parseLiteral("newState("+newState+","+reward+","+impostorIterations+")"));
+				addPercept("seeker_RL_",Literal.parseLiteral("newState("+newState+","+reward+","+seekerIterations+")"));
 
-			} else {
+			// } else {
 				
-				String key = subState + "_" + actionName;
-				int reward;
-				if (impostorPlausibleActionsForState.contains(key))
-					reward = 0;
-				else
-					reward = -1;
+			// 	String key = subState + "_" + actionName;
+			// 	int reward;
+			// 	if (seekerPlausibleActionsForState.contains(key))
+			// 		reward = 0;
+			// 	else
+			// 		reward = -1;
 				
-				impostorSubIterations++;
+			// 	seekerSubIterations++;
 				
-				addPercept("impostor_RL_",Literal.parseLiteral("rewardForSubState("+subState+","+actionName+","+reward+","+impostorSubIterations+")"));
-			}
+			// 	addPercept("seeker_RL_",Literal.parseLiteral("rewardForSubState("+subState+","+actionName+","+reward+","+seekerSubIterations+")"));
+			// }
 			
 			return true;
 			
