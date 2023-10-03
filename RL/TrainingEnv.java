@@ -19,10 +19,13 @@ public class TrainingEnv extends Environment {
 	// private int numberOfTasks = 5;
 	// private int numberOfseekers = 4;
 	private int numberOfhidings = 4;
-
-	private int moveDone = 0; // mosse fatte da hiding in stato sneak e run, dopo che ne ha fatto 11(?) do un reward molto positivo per simulare che si è liberato
-	private int actionsSinceSeen = 0; // azioni che hiding ha fatto da quando è stato visto, se superano 11(?), reward negativo per simulare la cattura
+	private int numerOfCaptured = 0;
+	private int moveDoneSeeker = 0; // move fatte dal seeker in stato run, dopo che ne ha fatto 11(?) do un reward molto positivo per simulare che abbia catturato
 	private int actionsSinceSaw = 0; // azioni che seeker ha fatto da quando ha visto, se superano 11(?) reward negativo per simulare che l'hiding si sia lberato
+
+
+	private int moveDoneHide = 0; // move fatte da hiding in stato sneak e run, dopo che ne ha fatto 11(?) do un reward molto positivo per simulare che si è liberato
+	private int actionsSinceSeen = 0; // azioni che hiding ha fatto da quando è stato visto, se superano 11(?), reward negativo per simulare la cattura
 	
 	private List<String> hidingPlausibleActionsForState = new ArrayList<String>();
 	private List<String> seekerPlausibleActionsForState = new ArrayList<String>(); // Probabilmente inutile: in ogni stato tutte le azioni sono valide
@@ -139,12 +142,12 @@ public class TrainingEnv extends Environment {
 				// anceh se sono uguali, sono due if diversi in caso vogliamo cambiare probabilità indipendentemente
 				else if(state.contains("sneak") && actionName.equals("move")) 
 				{
-					moveDone++;
+					moveDoneHide++;
 					newState = oneOf("hide_false_false", "hide_true_false", "sneak_false_false", "sneak_true_false", "run_false_false", "run_true_false");
 				}				
 				else if(state.contains("run") && actionName.equals("move")) 
 				{
-					moveDone++;
+					moveDoneHide++;
 					actionsSinceSeen++;
 					newState = oneOf("run_false_false", "run_true_false");
 				}
@@ -196,17 +199,17 @@ public class TrainingEnv extends Environment {
 
 				// TODO: reward shaping ?
 				
-				if (moveDone == 11) // ha raggiunto casa base e si è liberato, ricomincio l'episodio
+				if (moveDoneHide == 11) // ha raggiunto casa base e si è liberato, ricomincio l'episodio
 				{	
 					reward = 100;
-					moveDone = 0;
+					moveDoneHide = 0;
 					actionsSinceSeen = 0;
 					newState = "hide_false_false";
 				}
 				else if(actionsSinceSeen == 11) // non ha raggiunto casa base in tempo ed è stato catturato, ricominicio l'episodio
 				{
 					reward = -10; // o magari -100
-					moveDone = 0;
+					moveDoneHide = 0;
 					actionsSinceSeen = 0;
 					newState = "hide_false_false";
 				}
@@ -274,36 +277,62 @@ public class TrainingEnv extends Environment {
 				
 				String newState = "";
 				
-				//TODO: cambiare transizioni
-				if (key.equals("standing_look"))
-					newState = oneOf("found1","found2orMore","notFound");
-				else if (key.equals("found1_look") || key.equals("found1_report") || key.equals("found1_dontVote"))
-					newState = "found1";
-				else if (key.equals("found1_deceive") || key.equals("found1_kill"))
-					newState = "goalAccomplished";
-				else if (key.equals("found2orMore_look") || key.equals("found2orMore_report") || key.equals("found2orMore_dontVote"))
-					newState = "found2orMore";
-				else if (key.equals("found2orMore_deceive") || key.equals("found2orMore_kill"))
-					newState = "goalAccomplished";
-				else if (state.equals("goalAccomplished") && !key.equals("goalAccomplished_move"))
-					newState = "goalAccomplished";
-				else if (action.equals("notFound") && !key.equals("notFound_move"))
-					newState = "notFound";
+				if(state.contains("search") && actionName.equals("move"))
+				{
+					newState = oneOf("search_false", "run_false");
+				}
+				else if(state.contains("run") && actionName.equals("move"))
+				{
+					actionsSinceSaw++;
+					moveDoneSeeker++;
+					// Questa transizione è diversa dal file bozzaStati perchè può andare in searching solo se cattura o l'altro si libera
+					// lo gestisco dopo.
+					newState = "run_false";
+				}
+				else if(state.contains("search") && actionName.equals("lookAround"))
+				{
+					newState = oneOf("search_true", "run_true");
+				}
+				else if(state.contains("run") && actionName.equals("lookAround"))
+				{
+					actionsSinceSaw++;
+					newState = "run_true";
+				}
 				else
-					newState = "standing";
+				{
+					newState = "search_false"; // azzerare le varibili
+				}
 				
-				if (key.equals("found1_kill")) {
+				//TODO(?): reward shaping
+
+				boolean lastFree = false;
+				if(moveDoneSeeker == 11) // ha raggiunto casa base e cattura
+				{
 					reward = 10;
+					moveDoneSeeker = 0;
+					actionsSinceSeen = 0;
 					numberOfhidings--;
+					numerOfCaptured += 1;
 				}
-				
-				if (key.equals("found2orMore_deceive")) {
-					reward = 1;
+				else if(actionsSinceSaw == 11) // non ha raggiunto casa base in tempo e hiding si libera
+				{
+					reward = -10;
+					moveDoneSeeker = 0;
+					actionsSinceSeen = 0;
+					numberOfhidings--;
+					if(numberOfhidings == 0)
+						lastFree = true;
 				}
-			
-				if (numberOfhidings == 0) {
-					reward = 100;
+
+				if (numberOfhidings == 0) 
+				{
+					if( numerOfCaptured >= 2 && !lastFree) // seeker ha vinto
+						reward = 100;
+					else
+						reward = -100; // ?
+
 					numberOfhidings = 4;
+					numerOfCaptured = 0;
 				}
 				
 				seekerIterations++;
