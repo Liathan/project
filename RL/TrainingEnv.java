@@ -200,15 +200,15 @@ public class TrainingEnv extends Environment {
 				{	
 					reward = 100;
 					moveDone = 0;
-					actionsSinceSeen = 0
-					newState = "hide_false_false"
+					actionsSinceSeen = 0;
+					newState = "hide_false_false";
 				}
 				else if(actionsSinceSeen == 11) // non ha raggiunto casa base in tempo ed è stato catturato, ricominicio l'episodio
 				{
-					reward = -10 // o magari -100
+					reward = -10; // o magari -100
 					moveDone = 0;
-					actionsSinceSeen = 0
-					newState = "hide_false_false"
+					actionsSinceSeen = 0;
+					newState = "hide_false_false";
 				}
 				
 				hidingIterations++;

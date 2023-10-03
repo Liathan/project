@@ -1,4 +1,5 @@
-bin/*
+RL/bin/*
+BDI/bin/*
 project.code-workspace
 *~
 *.pdf
