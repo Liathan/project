@@ -19,6 +19,10 @@ public class TrainingEnv extends Environment {
 	// private int numberOfTasks = 5;
 	// private int numberOfseekers = 4;
 	private int numberOfhidings = 4;
+
+	private int moveDone = 0; // mosse fatte da hiding in stato sneak e run, dopo che ne ha fatto 11(?) do un reward molto positivo per simulare che si è liberato
+	private int actionsSinceSeen = 0; // azioni che hiding ha fatto da quando è stato visto, se superano 11(?), reward negativo per simulare la cattura
+	private int actionsSinceSaw = 0; // azioni che seeker ha fatto da quando ha visto, se superano 11(?) reward negativo per simulare che l'hiding si sia lberato
 	
 	private List<String> hidingPlausibleActionsForState = new ArrayList<String>();
 	private List<String> seekerPlausibleActionsForState = new ArrayList<String>(); // Probabilmente inutile: in ogni stato tutte le azioni sono valide
@@ -126,25 +130,85 @@ public class TrainingEnv extends Environment {
 					reward = -1;
 				
 				String newState = "";
-
-				//TODO: cambiare le transizioni
-				if (key.equals("standing_look"))
-					newState = oneOf("taskDetected","nothingToDo");
-				else if (state.equals("taskDetected") && !key.equals("taskDetected_repair"))
-					newState = "taskDetected";
-				else if (state.equals("nothingToDo") && !key.equals("nothingToDo_move"))
-					newState = "nothingToDo";
-				else
-					newState = "standing";
 				
-				if (key.equals("taskDetected_repair")) {
-					reward = 1;
-					numberOfTasks--;
+				//TODO: cambiare le probabilità a quelli che servono
+				if(state.contains("hide") && actionName.equals("move"))
+				{
+					newState = oneOf("hide_false_false", "hide_true_false", "sneak_false_false", "sneak_true_false", "run_false_false", "run_true_false");
 				}
+				// anceh se sono uguali, sono due if diversi in caso vogliamo cambiare probabilità indipendentemente
+				else if(state.contains("sneak") && actionName.equals("move")) 
+				{
+					moveDone++;
+					newState = oneOf("hide_false_false", "hide_true_false", "sneak_false_false", "sneak_true_false", "run_false_false", "run_true_false");
+				}				
+				else if(state.contains("run") && actionName.equals("move")) 
+				{
+					moveDone++;
+					actionsSinceSeen++;
+					newState = oneOf("run_false_false", "run_true_false");
+				}
+				// confronta il file bozzaStati sul perchè possa andare anche in stati X_true_true
+				else if(state.contains("hide_false") && actionName.equals("lookAround"))
+				{
+					newState = oneOf("hide_false_true", "hide_true_true", "run_false_true", "run_true_true");
+				}
+				else if(state.contains("hide_true") && actionName.equals("lookAround"))
+				{
+					newState = oneOf("hide_true_true", "run_true_true");
+				}
+				// confronta il file bozzaStati sul perchè possa andare anche in stati X_true_true
+				else if(state.contains("sneak_false") && actionName.equals("lookAround"))
+				{
+					newState = oneOf("hide_false_true", "hide_true_true", "sneak_false_true", "sneak_true_true", "run_false_true", "run_true_true");
+				}
+				else if(state.contains("sneak_true") && actionName.equals("lookAround"))
+				{
+					newState = oneOf("hide_true_true", "sneak_true_true", "run_true_true");
+				}
+				// confronta il file bozzaStati sul perchè possa andare anche in run_true_true
+				else if(state.contains("run_false") && actionName.equals("lookAround"))
+				{
+					actionsSinceSeen++;
+					newState = oneOf("run_false_true", "run_true_true");
+				}
+				else if(state.contains("run_true") && actionName.equals("lookAround"))
+				{
+					actionsSinceSeen++;
+					newState = "run_true_true";
+				}
+				else if(state.contains("hide") && actionName.equals("peek"))
+				{
+					newState = oneOf("hide_false_false", "run_false_false");
+				}
+				else if(state.contains("sneak") && actionName.equals("peek"))
+				{
+					newState = oneOf("hide_false_false", "sneak_false_false", "run_false_false");
+				}
+				else if(state.contains("run") && actionName.equals("peek"))
+				{
+					actionsSinceSeen++;
+					newState = "run_false_false";
+				}
+				else
+					newState = "hide_false_false"; //TODO(?): azzerare le variabili che tengono conto delle mosse
 				
-				if (numberOfTasks == 0) {	//episode concluded, starting new episode
+
+				// TODO: reward shaping ?
+				
+				if (moveDone == 11) // ha raggiunto casa base e si è liberato, ricomincio l'episodio
+				{	
 					reward = 100;
-					numberOfTasks = 5;
+					moveDone = 0;
+					actionsSinceSeen = 0
+					newState = "hide_false_false"
+				}
+				else if(actionsSinceSeen == 11) // non ha raggiunto casa base in tempo ed è stato catturato, ricominicio l'episodio
+				{
+					reward = -10 // o magari -100
+					moveDone = 0;
+					actionsSinceSeen = 0
+					newState = "hide_false_false"
 				}
 				
 				hidingIterations++;
