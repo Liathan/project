@@ -1,0 +1,47 @@
+Hiding
+
+Stato: (mode, canPeek, lookedAroundLast)
+	- mode : {hiding, sneaking, running} // magari cambiare nome
+	- canPeek, lookedAroundLast : Booleani
+
+	canPeek e lookedAroundLast servono perchè lookAround e Peek non cambiano lo stato altrimenti e quindi rimaniamo in un loop
+	in più, l'azione peek non può essere fatta sempre, e quindi bisogna distinguere gli stati in cui può e in cui non può
+
+Azioni: move, peek, lookAround
+
+	la move supponiamo che usi la mossa indicata dall'A*, così come fatto dai BDI
+
+	
+				   	move					lookAround				peek
+
+1	hide, F, F		1, 3, 5, 7, 9, 11		2, *4, 10, *12			XXXX
+2	hide, F, T		1, 3, 5, 7, 9, 11		2, *4, 10, *12			XXXX
+3	hide, T, F		1, 3, 5, 7, 9, 11		4, 12					1, 9
+4	hide, T, T		1, 3, 5, 7, 9, 11		4, 12					1, 9
+
+5	sneak, F, F		1, 3, 5, 7, 9, 11		2, *4, 6, *8, 10, *12	XXXX
+6	sneak, F, T		1, 3, 5, 7, 9, 11		2, *4, 6, *8, 10, *12	XXXX
+7	sneak, T, F		1, 3, 5, 7, 9, 11		4, 8, 12				1, 5, 9
+8	sneak, T, T		1, 3, 5, 7, 9, 11		4, 8, 12				1, 5, 9
+
+9	run, F, F		9, 11					10, *12					XXXX
+10	run, F, T		9, 11					10, *12					XXXX
+11	run, T, F		9, 11					12						9
+12	run, T, T		9, 11					12						9
+
+* sto modellando che se fa la peek, va in uno stato in cui non può più, per evitare loop. Se dopo faccio la lookAround, potrei dargli la possibilità di rifare la peek
+
+Seeker
+
+Stato( mode, lookedAroundLast)
+	-mode: {searching, running}
+	-lookedAroundLast: Boolean
+
+Azioni: move, lookAround
+
+					move 	lookAround
+1	searching, F	1, 3	2, 4
+2	searching, T	1, 3	2, 4
+
+3	running, F		1, 3	4
+4	running, T		1, 3	4
