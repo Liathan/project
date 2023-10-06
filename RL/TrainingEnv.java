@@ -10,14 +10,11 @@ public class TrainingEnv extends Environment {
 
 	private Logger logger = Logger.getLogger("rl_training.mas2j."+TrainingEnv.class.getName());
 	private int hidingIterations = 0;
-	// private int hidingSubIterations = 0;
 	private int seekerIterations = 0;
-	// private int seekerSubIterations = 0;
+
 	private double hidingEpsilon = 0.3;
 	private double seekerEpsilon = 0.3;
 
-	// private int numberOfTasks = 5;
-	// private int numberOfseekers = 4;
 	private int numberOfhidings = 4;
 	private int numerOfCaptured = 0;
 	private int moveDoneSeeker = 0; // move fatte dal seeker in stato run, dopo che ne ha fatto 11(?) do un reward molto positivo per simulare che abbia catturato
@@ -80,27 +77,6 @@ public class TrainingEnv extends Environment {
 		addPercept("hiding_RL_",Literal.parseLiteral("start"));
 		addPercept("seeker_RL_",Literal.parseLiteral("start"));
 		
-		// new Timer().scheduleAtFixedRate(new TimerTask() {
-		// 	private int runs = 0;
-		// 	public void run() {
-		// 		String newSubState = oneOf("wasFixing","wasKilling","reported_trustAccuser","reported_trustAccused","reported_untrustAccuser","reported_untrustAccused","reported_dontknow","advantageReceived");
-		// 		removePercept("hiding_RL_",Literal.parseLiteral("newSubState("+newSubState+")"));
-		// 		addPercept("hiding_RL_",Literal.parseLiteral("newSubState("+newSubState+")"));
-		// 		if (++runs > 2000)
-		// 			cancel();
-		// 	}
-		// }, 0, 500);
-		
-		// new Timer().scheduleAtFixedRate(new TimerTask() {
-		// 	private int runs = 0;
-		// 	public void run() {
-		// 		String newSubState = oneOf("advantageReceived","reported");
-		// 		removePercept("seeker_RL_",Literal.parseLiteral("newSubState("+newSubState+")"));
-		// 		addPercept("seeker_RL_",Literal.parseLiteral("newSubState("+newSubState+")"));
-		// 		if (++runs > 500)
-		// 			cancel();
-		// 	}
-		// }, 0, 500);
 		
 	}
 	
@@ -121,137 +97,107 @@ public class TrainingEnv extends Environment {
 			
 			String actionName = action.getTerm(0).toString();
 			String state = action.getTerm(1).toString();
-			// String subState = action.getTerm(2).toString();
 			
-			// if(subState.equals("noSubState")) {
-				
-				String key = state + "_" + actionName;
-				int reward;
-				if (hidingPlausibleActionsForState.contains(key))
-					reward = 0;
-				else
-					reward = -1;
-				
-				String newState = "";
-				
-				//TODO: cambiare le probabilità a quelli che servono
-				if(state.contains("hide") && actionName.equals("move"))
-				{
-					newState = oneOf("hide_false_false", "hide_true_false", "sneak_false_false", "sneak_true_false", "run_false_false", "run_true_false");
-				}
-				// anceh se sono uguali, sono due if diversi in caso vogliamo cambiare probabilità indipendentemente
-				else if(state.contains("sneak") && actionName.equals("move")) 
-				{
-					moveDoneHide++;
-					newState = oneOf("hide_false_false", "hide_true_false", "sneak_false_false", "sneak_true_false", "run_false_false", "run_true_false");
-				}				
-				else if(state.contains("run") && actionName.equals("move")) 
-				{
-					moveDoneHide++;
-					actionsSinceSeen++;
-					newState = oneOf("run_false_false", "run_true_false");
-				}
-				// confronta il file bozzaStati sul perchè possa andare anche in stati X_true_true
-				else if(state.contains("hide_false") && actionName.equals("lookAround"))
-				{
-					newState = oneOf("hide_false_true", "hide_true_true", "run_false_true", "run_true_true");
-				}
-				else if(state.contains("hide_true") && actionName.equals("lookAround"))
-				{
-					newState = oneOf("hide_true_true", "run_true_true");
-				}
-				// confronta il file bozzaStati sul perchè possa andare anche in stati X_true_true
-				else if(state.contains("sneak_false") && actionName.equals("lookAround"))
-				{
-					newState = oneOf("hide_false_true", "hide_true_true", "sneak_false_true", "sneak_true_true", "run_false_true", "run_true_true");
-				}
-				else if(state.contains("sneak_true") && actionName.equals("lookAround"))
-				{
-					newState = oneOf("hide_true_true", "sneak_true_true", "run_true_true");
-				}
-				// confronta il file bozzaStati sul perchè possa andare anche in run_true_true
-				else if(state.contains("run_false") && actionName.equals("lookAround"))
-				{
-					actionsSinceSeen++;
-					newState = oneOf("run_false_true", "run_true_true");
-				}
-				else if(state.contains("run_true") && actionName.equals("lookAround"))
-				{
-					actionsSinceSeen++;
-					newState = "run_true_true";
-				}
-				else if(state.contains("hide") && actionName.equals("peek"))
-				{
-					newState = oneOf("hide_false_false", "run_false_false");
-				}
-				else if(state.contains("sneak") && actionName.equals("peek"))
-				{
-					newState = oneOf("hide_false_false", "sneak_false_false", "run_false_false");
-				}
-				else if(state.contains("run") && actionName.equals("peek"))
-				{
-					actionsSinceSeen++;
-					newState = "run_false_false";
-				}
-				else
-					newState = "hide_false_false"; //TODO(?): azzerare le variabili che tengono conto delle mosse
-				
+			
+			String key = state + "_" + actionName;
+			int reward;
+			if (hidingPlausibleActionsForState.contains(key))
+				reward = 0;
+			else
+				reward = -1;
+			
+			String newState = "";
+			
+			//TODO: cambiare le probabilità a quelli che servono
+			if(state.contains("hide") && actionName.equals("move"))
+			{
+				newState = oneOf("hide_false_false", "hide_true_false", "sneak_false_false", "sneak_true_false", "run_false_false", "run_true_false");
+			}
+			// anceh se sono uguali, sono due if diversi in caso vogliamo cambiare probabilità indipendentemente
+			else if(state.contains("sneak") && actionName.equals("move")) 
+			{
+				moveDoneHide++;
+				newState = oneOf("hide_false_false", "hide_true_false", "sneak_false_false", "sneak_true_false", "run_false_false", "run_true_false");
+			}				
+			else if(state.contains("run") && actionName.equals("move")) 
+			{
+				moveDoneHide++;
+				actionsSinceSeen++;
+				newState = oneOf("run_false_false", "run_true_false");
+			}
+			// confronta il file bozzaStati sul perchè possa andare anche in stati X_true_true
+			else if(state.contains("hide_false") && actionName.equals("lookAround"))
+			{
+				newState = oneOf("hide_false_true", "hide_true_true", "run_false_true", "run_true_true");
+			}
+			else if(state.contains("hide_true") && actionName.equals("lookAround"))
+			{
+				newState = oneOf("hide_true_true", "run_true_true");
+			}
+			// confronta il file bozzaStati sul perchè possa andare anche in stati X_true_true
+			else if(state.contains("sneak_false") && actionName.equals("lookAround"))
+			{
+				newState = oneOf("hide_false_true", "hide_true_true", "sneak_false_true", "sneak_true_true", "run_false_true", "run_true_true");
+			}
+			else if(state.contains("sneak_true") && actionName.equals("lookAround"))
+			{
+				newState = oneOf("hide_true_true", "sneak_true_true", "run_true_true");
+			}
+			// confronta il file bozzaStati sul perchè possa andare anche in run_true_true
+			else if(state.contains("run_false") && actionName.equals("lookAround"))
+			{
+				actionsSinceSeen++;
+				newState = oneOf("run_false_true", "run_true_true");
+			}
+			else if(state.contains("run_true") && actionName.equals("lookAround"))
+			{
+				actionsSinceSeen++;
+				newState = "run_true_true";
+			}
+			else if(state.contains("hide") && actionName.equals("peek"))
+			{
+				newState = oneOf("hide_false_false", "run_false_false");
+			}
+			else if(state.contains("sneak") && actionName.equals("peek"))
+			{
+				newState = oneOf("hide_false_false", "sneak_false_false", "run_false_false");
+			}
+			else if(state.contains("run") && actionName.equals("peek"))
+			{
+				actionsSinceSeen++;
+				newState = "run_false_false";
+			}
+			else
+				newState = "hide_false_false"; //TODO(?): azzerare le variabili che tengono conto delle mosse
+			
 
-				// TODO: reward shaping ?
-				
-				if (moveDoneHide == 11) // ha raggiunto casa base e si è liberato, ricomincio l'episodio
-				{	
-					reward = 100;
-					moveDoneHide = 0;
-					actionsSinceSeen = 0;
-					newState = "hide_false_false";
-				}
-				else if(actionsSinceSeen == 11) // non ha raggiunto casa base in tempo ed è stato catturato, ricominicio l'episodio
-				{
-					reward = -10; // o magari -100
-					moveDoneHide = 0;
-					actionsSinceSeen = 0;
-					newState = "hide_false_false";
-				}
-				
-				hidingIterations++;
-				
-				if (hidingIterations % 100 == 0 && hidingEpsilon < 0.8) {
-					removePercept("hiding_RL_",Literal.parseLiteral("updateEpsilon("+hidingEpsilon+")"));
-					hidingEpsilon = hidingEpsilon + 0.05;
-					addPercept("hiding_RL_",Literal.parseLiteral("updateEpsilon("+hidingEpsilon+")"));
-				}
+			// TODO: reward shaping ?
 			
-				addPercept("hiding_RL_",Literal.parseLiteral("newState("+newState+","+reward+","+hidingIterations+")"));
+			if (moveDoneHide == 11) // ha raggiunto casa base e si è liberato, ricomincio l'episodio
+			{	
+				reward = 100;
+				moveDoneHide = 0;
+				actionsSinceSeen = 0;
+				newState = "hide_false_false";
+			}
+			else if(actionsSinceSeen == 11) // non ha raggiunto casa base in tempo ed è stato catturato, ricominicio l'episodio
+			{
+				reward = -10; // o magari -100
+				moveDoneHide = 0;
+				actionsSinceSeen = 0;
+				newState = "hide_false_false";
+			}
+			
+			hidingIterations++;
+			
+			if (hidingIterations % 100 == 0 && hidingEpsilon < 0.8) {
+				removePercept("hiding_RL_",Literal.parseLiteral("updateEpsilon("+hidingEpsilon+")"));
+				hidingEpsilon = hidingEpsilon + 0.05;
+				addPercept("hiding_RL_",Literal.parseLiteral("updateEpsilon("+hidingEpsilon+")"));
+			}
+		
+			addPercept("hiding_RL_",Literal.parseLiteral("newState("+newState+","+reward+","+hidingIterations+")"));
 				
-			// } else {
-				
-			// 	String key = subState + "_" + actionName;
-			// 	int reward;
-			// 	if (hidingPlausibleActionsForState.contains(key))
-			// 		reward = 0;
-			// 	else
-			// 		reward = -1;
-				
-			// 	if (key.equals("reported_trustAccused_voteForAccuser") || key.equals("reported_trustAccuser_voteForAccused")
-			// 			|| key.equals("reported_untrustAccused_voteForAccused") || key.equals("reported_untrustAccuser_voteForAccuser")) {
-			// 		Random rand = new Random();
-			// 		int result = rand.nextInt(2);
-			// 		if (result == 1) {
-			// 			numberOfseekers--;
-			// 			reward = 1;
-			// 		}
-			// 	}
-				
-			// 	if (numberOfseekers == 0) {	//episode concluded, starting new episode
-			// 		reward = 100;
-			// 		numberOfseekers = 4;
-			// 	}
-				
-			// 	hidingSubIterations++;
-				
-			// 	addPercept("hiding_RL_",Literal.parseLiteral("rewardForSubState("+subState+","+actionName+","+reward+","+hidingSubIterations+")"));
-			// }
 			
 			return true;
 			
@@ -264,103 +210,88 @@ public class TrainingEnv extends Environment {
 			
 			String actionName = action.getTerm(0).toString();
 			String state = action.getTerm(1).toString();
-			// String subState = action.getTerm(2).toString();
 			
-			// if (subState.equals("noSubState")) {
 				
-				String key = state + "_" + actionName;
-				int reward;
-				if (seekerPlausibleActionsForState.contains(key)) // Rimuovere (?)
-					reward = 0;
-				else
-					reward = -1;
-				
-				String newState = "";
-				
-				if(state.contains("search") && actionName.equals("move"))
-				{
-					newState = oneOf("search_false", "run_false");
-				}
-				else if(state.contains("run") && actionName.equals("move"))
-				{
-					actionsSinceSaw++;
-					moveDoneSeeker++;
-					// Questa transizione è diversa dal file bozzaStati perchè può andare in searching solo se cattura o l'altro si libera
-					// lo gestisco dopo.
-					newState = "run_false";
-				}
-				else if(state.contains("search") && actionName.equals("lookAround"))
-				{
-					newState = oneOf("search_true", "run_true");
-				}
-				else if(state.contains("run") && actionName.equals("lookAround"))
-				{
-					actionsSinceSaw++;
-					newState = "run_true";
-				}
-				else
-				{
-					newState = "search_false"; // azzerare le varibili
-				}
-				
-				//TODO(?): reward shaping
-
-				boolean lastFree = false;
-				if(moveDoneSeeker == 11) // ha raggiunto casa base e cattura
-				{
-					reward = 10;
-					moveDoneSeeker = 0;
-					actionsSinceSaw = 0;
-					numberOfhidings--;
-					numerOfCaptured += 1;
-					newState = "search_false";
-				}
-				else if(actionsSinceSaw == 11) // non ha raggiunto casa base in tempo e hiding si libera
-				{
-					reward = -10;
-					moveDoneSeeker = 0;
-					actionsSinceSaw = 0;
-					numberOfhidings--;
-					if(numberOfhidings == 0)
-						lastFree = true;
-					newState = "search_false";
-				}
-
-				if (numberOfhidings == 0) 
-				{
-					if( numerOfCaptured >= 2 && !lastFree) // seeker ha vinto
-						reward = 100;
-					else
-						reward = -100; // ?
-
-					numberOfhidings = 4;
-					numerOfCaptured = 0;
-					newState = "search_false";
-				}
-				
-				seekerIterations++;
+			String key = state + "_" + actionName;
+			int reward;
+			if (seekerPlausibleActionsForState.contains(key)) // Rimuovere (?)
+				reward = 0;
+			else
+				reward = -1;
 			
-				if (seekerIterations % 100 == 0 && seekerEpsilon < 0.8) {
-					removePercept("seeker_RL_",Literal.parseLiteral("updateEpsilon("+seekerEpsilon+")"));
-					seekerEpsilon = seekerEpsilon + 0.05;
-					addPercept("seeker_RL_",Literal.parseLiteral("updateEpsilon("+seekerEpsilon+")"));
-				}
-				
-				addPercept("seeker_RL_",Literal.parseLiteral("newState("+newState+","+reward+","+seekerIterations+")"));
+			String newState = "";
+			
+			if(state.contains("search") && actionName.equals("move"))
+			{
+				newState = oneOf("search_false", "run_false");
+			}
+			else if(state.contains("run") && actionName.equals("move"))
+			{
+				actionsSinceSaw++;
+				moveDoneSeeker++;
+				// Questa transizione è diversa dal file bozzaStati perchè può andare in searching solo se cattura o l'altro si libera
+				// lo gestisco dopo.
+				newState = "run_false";
+			}
+			else if(state.contains("search") && actionName.equals("lookAround"))
+			{
+				newState = oneOf("search_true", "run_true");
+			}
+			else if(state.contains("run") && actionName.equals("lookAround"))
+			{
+				actionsSinceSaw++;
+				newState = "run_true";
+			}
+			else
+			{
+				newState = "search_false"; // azzerare le varibili
+			}
+			
+			//TODO(?): reward shaping
 
-			// } else {
-				
-			// 	String key = subState + "_" + actionName;
-			// 	int reward;
-			// 	if (seekerPlausibleActionsForState.contains(key))
-			// 		reward = 0;
-			// 	else
-			// 		reward = -1;
-				
-			// 	seekerSubIterations++;
-				
-			// 	addPercept("seeker_RL_",Literal.parseLiteral("rewardForSubState("+subState+","+actionName+","+reward+","+seekerSubIterations+")"));
-			// }
+			boolean lastFree = false;
+			if(moveDoneSeeker == 11) // ha raggiunto casa base e cattura
+			{
+				reward = 10;
+				moveDoneSeeker = 0;
+				actionsSinceSaw = 0;
+				numberOfhidings--;
+				numerOfCaptured += 1;
+				newState = "search_false";
+			}
+			else if(actionsSinceSaw == 11) // non ha raggiunto casa base in tempo e hiding si libera
+			{
+				reward = -10;
+				moveDoneSeeker = 0;
+				actionsSinceSaw = 0;
+				numberOfhidings--;
+				if(numberOfhidings == 0)
+					lastFree = true;
+				newState = "search_false";
+			}
+
+			if (numberOfhidings == 0) 
+			{
+				if( numerOfCaptured >= 2 && !lastFree) // seeker ha vinto
+					reward = 100;
+				else
+					reward = -100; // ?
+
+				numberOfhidings = 4;
+				numerOfCaptured = 0;
+					newState = "search_false";
+			}
+			
+			seekerIterations++;
+		
+			if (seekerIterations % 100 == 0 && seekerEpsilon < 0.8) {
+				removePercept("seeker_RL_",Literal.parseLiteral("updateEpsilon("+seekerEpsilon+")"));
+				seekerEpsilon = seekerEpsilon + 0.05;
+				addPercept("seeker_RL_",Literal.parseLiteral("updateEpsilon("+seekerEpsilon+")"));
+			}
+			
+			addPercept("seeker_RL_",Literal.parseLiteral("newState("+newState+","+reward+","+seekerIterations+")"));
+
 			
 			return true;
 			
