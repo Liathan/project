@@ -310,18 +310,20 @@ public class TrainingEnv extends Environment {
 				{
 					reward = 10;
 					moveDoneSeeker = 0;
-					actionsSinceSeen = 0;
+					actionsSinceSaw = 0;
 					numberOfhidings--;
 					numerOfCaptured += 1;
+					newState = "search_false";
 				}
 				else if(actionsSinceSaw == 11) // non ha raggiunto casa base in tempo e hiding si libera
 				{
 					reward = -10;
 					moveDoneSeeker = 0;
-					actionsSinceSeen = 0;
+					actionsSinceSaw = 0;
 					numberOfhidings--;
 					if(numberOfhidings == 0)
 						lastFree = true;
+					newState = "search_false";
 				}
 
 				if (numberOfhidings == 0) 
@@ -333,6 +335,7 @@ public class TrainingEnv extends Environment {
 
 					numberOfhidings = 4;
 					numerOfCaptured = 0;
+					newState = "search_false";
 				}
 				
 				seekerIterations++;
