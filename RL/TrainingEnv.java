@@ -108,16 +108,21 @@ public class TrainingEnv extends Environment {
 			
 			String newState = "";
 			
+			// Confronta BozzaStati.txt per la spiegazione delle transizioni. Non sto facendo che la lookAround resetta la peek
 			//TODO: cambiare le probabilità a quelli che servono
 			if(state.contains("hide") && actionName.equals("move"))
 			{
-				newState = oneOf("hide_false_false", "hide_true_false", "sneak_false_false", "sneak_true_false", "run_false_false", "run_true_false");
+				// TODO: gestire la transizione in sneak con un contatore anzichè probabilistico?
+				List<String> listNew = List.of("hide_false_false", "hide_true_false", "sneak_false_false", "sneak_true_false", "run_false_false", "run_true_false");
+				List<Double> listProb = List.of(0.4, 0.4, 0.05, 0.05, 0.05, 0.05);
+				newState = oneOfWeighted(listNew, listProb);
 			}
-			// anceh se sono uguali, sono due if diversi in caso vogliamo cambiare probabilità indipendentemente
 			else if(state.contains("sneak") && actionName.equals("move")) 
 			{
 				moveDoneHide++;
-				newState = oneOf("hide_false_false", "hide_true_false", "sneak_false_false", "sneak_true_false", "run_false_false", "run_true_false");
+				List<String> listNew = List.of("hide_false_false", "hide_true_false", "sneak_false_false", "sneak_true_false", "run_false_false", "run_true_false");
+				List<Double> listProb = List.of(0.05, 0.05, 0.4, 0.4, 0.05, 0.05);
+				newState = oneOfWeighted(listNew, listProb);
 			}				
 			else if(state.contains("run") && actionName.equals("move")) 
 			{
@@ -125,29 +130,34 @@ public class TrainingEnv extends Environment {
 				actionsSinceSeen++;
 				newState = oneOf("run_false_false", "run_true_false");
 			}
-			// confronta il file bozzaStati sul perchè possa andare anche in stati X_true_true
 			else if(state.contains("hide_false") && actionName.equals("lookAround"))
 			{
-				newState = oneOf("hide_false_true", "hide_true_true", "run_false_true", "run_true_true");
+				List<String> listNew = List.of("hide_false_true", "run_false_true");
+				List<Double> listProb = List.of(0.9, 0.1);
+				newState = oneOfWeighted(listNew, listProb);
 			}
 			else if(state.contains("hide_true") && actionName.equals("lookAround"))
 			{
-				newState = oneOf("hide_true_true", "run_true_true");
+				List<String> listNew = List.of("hide_true_true", "run_true_true");
+				List<Double> listProb = List.of(0.9, 0.1);
+				newState = oneOfWeighted(listNew, listProb);
 			}
-			// confronta il file bozzaStati sul perchè possa andare anche in stati X_true_true
 			else if(state.contains("sneak_false") && actionName.equals("lookAround"))
 			{
-				newState = oneOf("hide_false_true", "hide_true_true", "sneak_false_true", "sneak_true_true", "run_false_true", "run_true_true");
+				List<String> listNew = List.of("hide_false_true", "sneak_false_true", "run_false_true");
+				List<Double> listProb = List.of(0.1, 0.8, 0.1);
+				newState = oneOfWeighted(listNew, listProb);
 			}
 			else if(state.contains("sneak_true") && actionName.equals("lookAround"))
 			{
-				newState = oneOf("hide_true_true", "sneak_true_true", "run_true_true");
+				List<String> listNew = List.of("hide_true_true", "sneak_true_true", "run_true_true");
+				List<Double> listProb = List.of(0.1, 0.8, 0.1);
+				newState = oneOfWeighted(listNew, listProb);
 			}
-			// confronta il file bozzaStati sul perchè possa andare anche in run_true_true
 			else if(state.contains("run_false") && actionName.equals("lookAround"))
 			{
 				actionsSinceSeen++;
-				newState = oneOf("run_false_true", "run_true_true");
+				newState = "run_false_true";
 			}
 			else if(state.contains("run_true") && actionName.equals("lookAround"))
 			{
@@ -156,11 +166,15 @@ public class TrainingEnv extends Environment {
 			}
 			else if(state.contains("hide") && actionName.equals("peek"))
 			{
-				newState = oneOf("hide_false_false", "run_false_false");
+				List<String> listNew = List.of("hide_false_false", "run_false_false");
+				List<Double> listProb = List.of(0.9, 0.1);
+				newState = oneOfWeighted(listNew, listProb);
 			}
 			else if(state.contains("sneak") && actionName.equals("peek"))
 			{
-				newState = oneOf("hide_false_false", "sneak_false_false", "run_false_false");
+				List<String> listNew = List.of("hide_false_false", "sneak_false_false", "run_false_false");
+				List<Double> listProb = List.of(0.1, 0.8, 0.1);
+				newState = oneOfWeighted(listNew, listProb);
 			}
 			else if(state.contains("run") && actionName.equals("peek"))
 			{
@@ -223,7 +237,9 @@ public class TrainingEnv extends Environment {
 			
 			if(state.contains("search") && actionName.equals("move"))
 			{
-				newState = oneOf("search_false", "run_false");
+				List<String> listNew = List.of("search_false", "run_false");
+				List<Double> listProb = List.of(0.9, 0.1);
+				newState = oneOfWeighted(listNew, listProb);
 			}
 			else if(state.contains("run") && actionName.equals("move"))
 			{
@@ -235,6 +251,9 @@ public class TrainingEnv extends Environment {
 			}
 			else if(state.contains("search") && actionName.equals("lookAround"))
 			{
+				List<String> listNew = List.of("search_true", "run_true");
+				List<Double> listProb = List.of(0.8, 0.2);
+				newState = oneOfWeighted(listNew, listProb);
 				newState = oneOf("search_true", "run_true");
 			}
 			else if(state.contains("run") && actionName.equals("lookAround"))
@@ -244,7 +263,7 @@ public class TrainingEnv extends Environment {
 			}
 			else
 			{
-				newState = "search_false"; // azzerare le varibili
+				newState = "search_false"; // azzerare le varibili(?)
 			}
 			
 			//TODO(?): reward shaping
@@ -307,5 +326,19 @@ public class TrainingEnv extends Environment {
 		Random rand = new Random();
 		int result = rand.nextInt(args.length);
 		return args[result];
+	}
+
+	// Java non ha un metodo per le distribuzioni discrete...
+	private String oneOfWeighted(List<String> states, List<Double> probs)
+	{
+		// TODO: controlli sugli argomenti in modo che siano sensati: stessa lunghezza e le probabilità sommino a ~1
+		double rand = Math.random();
+		int index = -1;
+		while( rand >= 0)
+		{
+			index++;
+			rand -= probs.get(index);
+		}
+		return states.get(index); 
 	}
 }
