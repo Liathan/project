@@ -187,7 +187,7 @@ public class TrainingEnv extends Environment {
 
 			// TODO: reward shaping ?
 			
-			if (moveDoneHide == 11) // ha raggiunto casa base e si è liberato, ricomincio l'episodio
+			if (moveDoneHide == 6) // ha raggiunto casa base e si è liberato, ricomincio l'episodio
 			{	
 				reward = 100;
 				moveDoneHide = 0;
@@ -196,7 +196,7 @@ public class TrainingEnv extends Environment {
 			}
 			else if(actionsSinceSeen == 11) // non ha raggiunto casa base in tempo ed è stato catturato, ricominicio l'episodio
 			{
-				reward = -10; // o magari -100
+				reward = -100; // o magari -100
 				moveDoneHide = 0;
 				actionsSinceSeen = 0;
 				newState = "hide_false_false";
@@ -269,7 +269,7 @@ public class TrainingEnv extends Environment {
 			//TODO(?): reward shaping
 
 			boolean lastFree = false;
-			if(moveDoneSeeker == 11) // ha raggiunto casa base e cattura
+			if(moveDoneSeeker == 6) // ha raggiunto casa base e cattura
 			{
 				reward = 10;
 				moveDoneSeeker = 0;
@@ -298,7 +298,7 @@ public class TrainingEnv extends Environment {
 
 				numberOfhidings = 4;
 				numerOfCaptured = 0;
-					newState = "search_false";
+				newState = "search_false";
 			}
 			
 			seekerIterations++;
