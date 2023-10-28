@@ -21,7 +21,8 @@ public class TrainingEnv extends Environment {
 	private int actionsSinceSaw = 0; // azioni che seeker ha fatto da quando ha visto, se superano 11(?) reward negativo per simulare che l'hiding si sia lberato
 
 
-	private int moveDoneHide = 0; // move fatte da hiding in stato sneak e run, dopo che ne ha fatto 11(?) do un reward molto positivo per simulare che si è liberato
+	private int hiding_move_to_home = 0; // move fatte da hiding in stato sneak e run, dopo che ne ha fatto 11(?) do un reward molto positivo per simulare che si è liberato
+	private int move_in_hiding = 0; // move fatte da hiding in stato hide. Dopo 3(?) cambia stato in sneak. Poteri dare un reward positivo
 	private int actionsSinceSeen = 0; // azioni che hiding ha fatto da quando è stato visto, se superano 11(?), reward negativo per simulare la cattura
 	
 	private List<String> hidingPlausibleActionsForState = new ArrayList<String>();
@@ -113,21 +114,23 @@ public class TrainingEnv extends Environment {
 			if(state.contains("hide") && actionName.equals("move"))
 			{
 				// TODO: gestire la transizione in sneak con un contatore anzichè probabilistico?
-				List<String> listNew = List.of("hide_false_false", "hide_true_false", "sneak_false_false", "sneak_true_false", "run_false_false", "run_true_false");
-				List<Double> listProb = List.of(0.4, 0.4, 0.05, 0.05, 0.05, 0.05);
+				List<String> listNew = List.of("hide_false_false", "hide_true_false", "run_false_false", "run_true_false");
+				List<Double> listProb = List.of(0.45, 0.45, 0.05, 0.05);
+				move_in_hiding++;
 				newState = oneOfWeighted(listNew, listProb);
 			}
 			else if(state.contains("sneak") && actionName.equals("move")) 
 			{
-				moveDoneHide++;
+				hiding_move_to_home++;
 				List<String> listNew = List.of("hide_false_false", "hide_true_false", "sneak_false_false", "sneak_true_false", "run_false_false", "run_true_false");
 				List<Double> listProb = List.of(0.05, 0.05, 0.4, 0.4, 0.05, 0.05);
 				newState = oneOfWeighted(listNew, listProb);
 			}				
 			else if(state.contains("run") && actionName.equals("move")) 
 			{
-				moveDoneHide++;
+				hiding_move_to_home++;
 				actionsSinceSeen++;
+				move_in_hiding = 0;
 				newState = oneOf("run_false_false", "run_true_false");
 			}
 			else if(state.contains("hide_false") && actionName.equals("lookAround"))
@@ -157,11 +160,13 @@ public class TrainingEnv extends Environment {
 			else if(state.contains("run_false") && actionName.equals("lookAround"))
 			{
 				actionsSinceSeen++;
+				move_in_hiding = 0;
 				newState = "run_false_true";
 			}
 			else if(state.contains("run_true") && actionName.equals("lookAround"))
 			{
 				actionsSinceSeen++;
+				move_in_hiding = 0;
 				newState = "run_true_true";
 			}
 			else if(state.contains("hide") && actionName.equals("peek"))
@@ -179,6 +184,7 @@ public class TrainingEnv extends Environment {
 			else if(state.contains("run") && actionName.equals("peek"))
 			{
 				actionsSinceSeen++;
+				move_in_hiding = 0;
 				newState = "run_false_false";
 			}
 			else
@@ -187,18 +193,29 @@ public class TrainingEnv extends Environment {
 
 			// TODO: reward shaping ?
 			
-			if (moveDoneHide == 6) // ha raggiunto casa base e si è liberato, ricomincio l'episodio
+			if(move_in_hiding == 3)
+			{
+				// TODO(?): se nell'ultima mossa è andato in run, questo sovrascrive
+				// e non tiene conto se è nello sstato in cui può fare peek o no. Ha senso cambiare?
+				newState = "sneak_false_false";
+				move_in_hiding = 0;
+				reward = 5; 
+			}
+
+			if (hiding_move_to_home == 6) // ha raggiunto casa base e si è liberato, ricomincio l'episodio
 			{	
 				reward = 100;
-				moveDoneHide = 0;
+				hiding_move_to_home = 0;
 				actionsSinceSeen = 0;
+				move_in_hiding = 0;
 				newState = "hide_false_false";
 			}
 			else if(actionsSinceSeen == 11) // non ha raggiunto casa base in tempo ed è stato catturato, ricominicio l'episodio
 			{
 				reward = -100; // o magari -100
-				moveDoneHide = 0;
+				hiding_move_to_home = 0;
 				actionsSinceSeen = 0;
+				move_in_hiding = 0;
 				newState = "hide_false_false";
 			}
 			
