@@ -112,7 +112,8 @@ public class TrainingEnv extends Environment {
 			//TODO: cambiare le probabilità a quelli che servono
 			if(state.contains("hide") && actionName.equals("move"))
 			{
-				// TODO: gestire la transizione in sneak con un contatore anzichè probabilistico?
+				//Gestire la transizione in sneak con un contatore anzichè probabilistico? 
+				// Provato nella branch "sneak_counter". Non ho riscontrato miglioramenti ma anzi dei probabili peggioramenti
 				List<String> listNew = List.of("hide_false_false", "hide_true_false", "sneak_false_false", "sneak_true_false", "run_false_false", "run_true_false");
 				List<Double> listProb = List.of(0.4, 0.4, 0.05, 0.05, 0.05, 0.05);
 				newState = oneOfWeighted(listNew, listProb);
