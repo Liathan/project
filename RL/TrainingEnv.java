@@ -186,8 +186,11 @@ public class TrainingEnv extends Environment {
 				newState = "hide_false_false"; //TODO(?): azzerare le variabili che tengono conto delle mosse
 			
 
-			// TODO: reward shaping ?
+			// reward shaping
+			if(state.contains("sneak_true") && actionName.equals("peek"))
+				reward += 1;	
 			
+			// Fine episodio
 			if (moveDoneHide == 6) // ha raggiunto casa base e si è liberato, ricomincio l'episodio
 			{	
 				reward = 100;
@@ -267,7 +270,9 @@ public class TrainingEnv extends Environment {
 				newState = "search_false"; // azzerare le varibili(?)
 			}
 			
-			//TODO(?): reward shaping
+			//reward shaping
+			if(state.contains("_true") && actionName.equals("lookAround"))
+				reward -= 1; // Punisco i loop in cui si guarda solo attorno senza muoversi
 
 			boolean lastFree = false;
 			if(moveDoneSeeker == 6) // ha raggiunto casa base e cattura
