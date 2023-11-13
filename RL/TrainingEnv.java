@@ -90,7 +90,7 @@ public class TrainingEnv extends Environment {
 		
 		if (player.startsWith("hiding") && action.getFunctor().equals("executeAction")) {
 			
-			if(hidingIterations >= 500) { //TODO: cambiare numero (?)
+			if(hidingIterations >= 5000) { //TODO: cambiare numero (?)
 				addPercept("hiding_RL_",Literal.parseLiteral("showValues"));
 				return true;
 			}
