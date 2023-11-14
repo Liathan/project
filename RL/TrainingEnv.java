@@ -165,25 +165,29 @@ public class TrainingEnv extends Environment {
 				actionsSinceSeen++;
 				newState = "run_true_true";
 			}
-			else if(state.contains("hide") && actionName.equals("peek"))
+			else if(state.contains("hide_true") && actionName.equals("peek"))
 			{
 				List<String> listNew = List.of("hide_false_false", "run_false_false");
 				List<Double> listProb = List.of(0.9, 0.1);
 				newState = oneOfWeighted(listNew, listProb);
 			}
-			else if(state.contains("sneak") && actionName.equals("peek"))
+			else if(state.contains("sneak_true") && actionName.equals("peek"))
 			{
 				List<String> listNew = List.of("hide_false_false", "sneak_false_false", "run_false_false");
 				List<Double> listProb = List.of(0.1, 0.8, 0.1);
 				newState = oneOfWeighted(listNew, listProb);
 			}
-			else if(state.contains("run") && actionName.equals("peek"))
+			else if(state.contains("run_true") && actionName.equals("peek"))
 			{
 				actionsSinceSeen++;
 				newState = "run_false_false";
 			}
 			else
-				newState = "hide_false_false"; //TODO(?): azzerare le variabili che tengono conto delle mosse
+			{
+				newState = "hide_false_false";
+				moveDoneHide = 0;
+				actionsSinceSeen = 0;
+			}
 			
 
 			// reward shaping
