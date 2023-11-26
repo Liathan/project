@@ -1,0 +1,20 @@
+/*
+    Hide n Seek
+    ---------------------------
+
+    Jason Project File
+
+    This file defines the initial state of the MAS
+
+    Jason 3.1
+*/
+
+MAS bdi_rl {
+
+    infrastructure: Local
+
+    environment: env.Playground
+    
+    agents: seeker_BDI_;
+            hideAg_BDI_#4;
+}

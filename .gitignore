@@ -1,5 +1,6 @@
 RL/bin/*
 BDI/bin/*
+BDI_RL/bin/*
 project.code-workspace
 *~
 *.pdf
