@@ -6,6 +6,7 @@ import jason.environment.TimeSteppedEnvironment;
 import jason.environment.grid.GridWorldModel;
 import jason.environment.grid.GridWorldView;
 import jason.environment.grid.Location;
+import jason.mas2j.*;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -13,7 +14,9 @@ import java.awt.Graphics;
 import java.util.Random;
 import java.util.logging.Logger;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.io.FileInputStream;
 
 // Posso provare a farlo TimeStepped, casomai
 public class Playground extends Environment {
@@ -28,6 +31,7 @@ public class Playground extends Environment {
 
     private Model model;
     private View view;
+    private List<String> names;
 
     Term up    = Literal.parseLiteral("move(up)");
     Term down  = Literal.parseLiteral("move(down)");
@@ -46,18 +50,41 @@ public class Playground extends Environment {
         liveAgents = new ConcurrentLinkedQueue<Integer>();
         for(int i = 0; i < NUMAG; ++i)
             liveAgents.add(i);
+
+        try 
+        {
+            jason.mas2j.parser.mas2j parser = new jason.mas2j.parser.mas2j(new FileInputStream("bdi_rl.mas2j"));
+            MAS2JProject project = parser.mas();
+
+            this.names = new ArrayList<String>();
+            // get the names from the project
+            for (AgentParameters ap : project.getAgents()) {
+                String agName = ap.name;
+                for (int cAg = 0; cAg < ap.getNbInstances(); cAg++) {
+                    String numberedAg = agName;
+                    if (ap.getNbInstances() > 1) {
+                    numberedAg += (cAg + 1);
+                    }
+                    this.names.add(numberedAg);
+                }
+            }
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace(); // Non dovrebbe mai succedere
+        }
         model.setView(view);
         updatePercepts();   
     }
     
-    public String id2Name(int id) // TODO_BDI_RL: i nomi ora hanno anche _BDI_ e _RL_
+    public String id2Name(int id) 
     {
-        return id == 0 ? "seeker" : "hideAg"+id;
+        return this.names.get(id);
     }
 
-    public int name2Id(String name) // TODO_BDI_RL: come sopra
+    public int name2Id(String name)
     {
-        return name.equals("seeker") ?  0 : Integer.parseInt(name.substring(6));
+        return this.names.indexOf(name);
     }
 
     private void updatePercepts()
@@ -100,8 +127,8 @@ public class Playground extends Environment {
     @Override
     public boolean executeAction(String ag, Structure action) 
     {
-        // logger.info(ag+" doing: "+action);
         int agId = name2Id(ag);
+        logger.info(ag+" doing: "+action +" ------------ Id: "+agId); // TEST
         boolean result = false;
         try 
         {
@@ -172,9 +199,9 @@ public class Playground extends Environment {
             e.printStackTrace();
         }
         updatePercepts();
-        // try {
-        //     Thread.sleep(500);
-        // } catch (Exception e) {}
+        try {
+            Thread.sleep(500);
+        } catch (Exception e) {}
         informAgsEnvironmentChanged();
         return result;
 
