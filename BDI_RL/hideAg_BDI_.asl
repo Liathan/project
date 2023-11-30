@@ -40,7 +40,7 @@ lastSeen(5, 5). //MAGIC NUMBER
                         {
                             +occupied(X, Y);
                             .my_name(AA);
-                            .print(AA, "-----------------", AG);
+                            //.print(AA, "-----------------", AG);
                             -goal(X, Y);
                         }
                     }

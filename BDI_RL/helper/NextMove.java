@@ -53,7 +53,7 @@ public class NextMove extends DefaultInternalAction
             Location goal = new Location(gx, gy);
             
             
-            logger.info(": " + goal.toString());
+            //logger.info(": " + goal.toString()); // TEST
             AStar path = new AStar(pos, goal);
 
             return new Iterator<Unifier>()
