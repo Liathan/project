@@ -105,7 +105,7 @@ public class Playground extends Environment {
             clearPercepts(name);
             addPercept(name, pos);
 
-            if(i == 0 && model.counting) // il cercatore non deve vedere mentre conta
+            if(name.contains("seeker") && model.counting) // il cercatore non deve vedere mentre conta
                 continue;
             
             for(Location sawloc : model.vision(i)) //model.vision restituisce le posizioni degli agenti visti o un array vuoto
@@ -128,7 +128,7 @@ public class Playground extends Environment {
     public boolean executeAction(String ag, Structure action) 
     {
         int agId = name2Id(ag);
-        logger.info(ag+" doing: "+action +" ------------ Id: "+agId); // TEST
+        // logger.info(ag+" doing: "+action +" ------------ Id: "+agId); // TEST
         boolean result = false;
         try 
         {
