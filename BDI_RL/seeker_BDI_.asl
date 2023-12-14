@@ -9,7 +9,9 @@ lost :- numFound(FD) & numFree(FR) & FR > FD.
 
 /* Initial goals */
 
-!count.
+!start.
+
++!start <- .my_name(SN); .broadcast(tell, seekerName(SN)); !count.
 
 /* Plans */
 
