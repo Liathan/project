@@ -10,7 +10,9 @@ lost :- numFound(FD) & numFree(FR) & FR > FD.
 myQ([]).
 
 /* Initial goals */
-!count.
+!start.
+
++!start <- .my_name(SN); .broadcast(tell, seekerName(SN)); !count.
 
 +!count <- count; !count. // l'azione count fallisce quando ha terminato la conta
 -!count <-
@@ -45,3 +47,7 @@ myQ([]).
 
 +myPos(X, Y) : goal(X, Y) <-
     !newGoal.
+
+@pos[atomic] 
+//TODO_BDI_RL: quando gli arriva la posizione di qualcuno deve cambiare stato
++pos(X, _, _) : .my_name(S) & X \== S <- .broadcast(tell, seen(X)); ?myPos(A, B); .broadcast(tell, pos(seeker, A, B)). 

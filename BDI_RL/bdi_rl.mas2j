@@ -16,5 +16,5 @@ MAS bdi_rl {
     environment: env.Playground
     
     agents: seeker_RL_;
-            hideAg_BDI_#4;
+            hideAg_RL_#4;
 }

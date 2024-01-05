@@ -13,7 +13,7 @@ state_action(sneak_true_true,peek).
 
 
 home(5, 5).
-
+lastSeen(5, 5).
 myQ([]).
 
 /* Initial goals */
@@ -28,7 +28,7 @@ myQ([]).
                 .all_names(L);
                 for( .member(AG, L ) )
                 {
-                    if( not .prefix("seeker", AG) & not .my_name(AG))
+                    if( AG \== "seeker_RL_" & AG \== "seeker_BDI_" & not .my_name(AG))
                     {
                         // Unifico con la stessa casella che getHidingSpot my ha restituito. Se non unifico, o non mi sto nascondedno nello stesso posto o l'altro ancora non ha deciso dove nascondersi
                         .send(AG, askOne, goal(X, Y), REPLY);  
@@ -51,7 +51,7 @@ myQ([]).
                     .print(NAME, " hiding in ", X, ":", Y);
                     .queue.create(Q);
                     -+myQ(Q);
-                    +!createMoveList;
+                    !createMoveList;
                 }.
                 
 
@@ -81,11 +81,11 @@ myQ([]).
     -chosenAction(peek);
     peek.
 
-+!wait <- for(.range(X, 0, 5)) { lookAround;}
++!wait <- for(.range(X, 0, 5)) { lookAround;}.
 
 +myPos(X, Y) : home(X, Y) <- !free.
 +myPos(X, Y) : goal(X, Y) <- !wait.
 
-@free[atomic] //TODO_BDI_RL: cambiare i nomi nella send
-+!free : remaining(1) <- .my_name(S); .broadcast(tell, free(S)); .send(seeker, tell, lost); .print("Tana libera tutti"); .drop_all_intentions; die. // se l'agente è l'ultimo e si libera fa tana libera tutti
+@free[atomic]
++!free : remaining(1) <- .my_name(S); .broadcast(tell, free(S)); seekerName(SN); .send(SN, tell, lost); .print("Tana libera tutti"); .drop_all_intentions; die. // se l'agente è l'ultimo e si libera fa tana libera tutti
 +!free <- .my_name(S); .broadcast(tell, free(S)); .print("Sono libero"); .drop_all_intentions; die.
