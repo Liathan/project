@@ -28,7 +28,7 @@ myQ([]).
                 .all_names(L);
                 for( .member(AG, L ) )
                 {
-                    if( AG \== "seeker_RL_" & AG \== "seeker_BDI_" & not .my_name(AG))
+                    if( AG \== seeker_RL_ & AG \== seeker_BDI_ & not .my_name(AG))
                     {
                         // Unifico con la stessa casella che getHidingSpot my ha restituito. Se non unifico, o non mi sto nascondedno nello stesso posto o l'altro ancora non ha deciso dove nascondersi
                         .send(AG, askOne, goal(X, Y), REPLY);  
