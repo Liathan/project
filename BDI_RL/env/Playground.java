@@ -16,6 +16,8 @@ import java.util.logging.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Map;
+import java.util.HashMap;
 import java.io.FileInputStream;
 
 // Posso provare a farlo TimeStepped, casomai
@@ -32,6 +34,7 @@ public class Playground extends Environment {
     private Model model;
     private View view;
     private List<String> names;
+    private Map<String, String> RL_States; // Mantengo nell'environment in che stato ogni agente RL è per sapere in quale stato deve andare
 
     Term up    = Literal.parseLiteral("move(up)");
     Term down  = Literal.parseLiteral("move(down)");
@@ -57,6 +60,7 @@ public class Playground extends Environment {
             MAS2JProject project = parser.mas();
 
             this.names = new ArrayList<String>();
+            this.RL_States = new HashMap<String, String>();
             // get the names from the project
             for (AgentParameters ap : project.getAgents()) {
                 String agName = ap.name;
@@ -66,12 +70,24 @@ public class Playground extends Environment {
                     numberedAg += (cAg + 1);
                     }
                     this.names.add(numberedAg);
+                    if(numberedAg.contains("hideAg_RL_"))
+                    {
+                        this.RL_States.put(numberedAg, "hide_false_false");
+                    }
+                    else if(numberedAg.contains("seeker_RL_"))
+                    {
+                        this.RL_States.put(numberedAg, "search_false");
+                    }
                 }
             }
         }
         catch(Exception e)
         {
             e.printStackTrace(); // Non dovrebbe mai succedere
+        }
+        for(String nm : this.names)
+        {
+            System.out.println(nm +"\t" + this.RL_States.containsKey(nm));
         }
         model.setView(view);
         updatePercepts();   

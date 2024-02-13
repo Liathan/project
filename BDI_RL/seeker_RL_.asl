@@ -48,6 +48,8 @@ myQ([]).
 +myPos(X, Y) : goal(X, Y) <-
     !newGoal.
 
++saw(X)[source(percept)] <- +seen(X); -saw(X)[source(percept)].
+
 @pos[atomic] 
 //TODO_BDI_RL: quando gli arriva la posizione di qualcuno deve cambiare stato
 +pos(X, _, _) : .my_name(S) & X \== S <- .broadcast(tell, seen(X)); ?myPos(A, B); .broadcast(tell, pos(seeker, A, B)). 
