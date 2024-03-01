@@ -89,3 +89,7 @@ myQ([]).
 @free[atomic]
 +!free : remaining(1) <- .my_name(S); .broadcast(tell, free(S)); seekerName(SN); .send(SN, tell, lost); .print("Tana libera tutti"); .drop_all_intentions; die. // se l'agente è l'ultimo e si libera fa tana libera tutti
 +!free <- .my_name(S); .broadcast(tell, free(S)); .print("Sono libero"); .drop_all_intentions; die.
+
+@seen[atomic]
++seen(S)[source(SN)] : seekerName(SN) & .my_name(S) <- .print("Arrivo prima").
++seen(S)[source(SN)] : seekerName(SN) <- .print("SKill Issue").

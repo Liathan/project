@@ -33,7 +33,7 @@ public class Playground extends Environment {
 
     private Model model;
     private View view;
-    private List<String> names;
+    private List<String> names; // I nomi degli agenti
     private Map<String, String> RL_States; // Mantengo nell'environment in che stato ogni agente RL è per sapere in quale stato deve andare
 
     Term up    = Literal.parseLiteral("move(up)");
