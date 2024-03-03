@@ -62,6 +62,11 @@ myQ([]).
         .queue.add(Q, DIR);
     }.
 
++newState(NS1)[source(percept)] : myState(S1) <-
+	-newState(NS1)[source(percept)];
+	-myState(S1);
+	+myState(NS1).
+
 +myState(S1) <-
 	.findall(A,state_action(S1,A),L);
 	.nth(0,L,Action);
@@ -93,3 +98,8 @@ myQ([]).
 @seen[atomic]
 +seen(S)[source(SN)] : seekerName(SN) & .my_name(S) <- .print("Arrivo prima").
 +seen(S)[source(SN)] : seekerName(SN) <- .print("SKill Issue").
+
++changeGoal(home)[source(percept)] : home(X, Y) <- -+goal(X, Y); !createMoveList.
++changeGoal[source(percept)] <- helper.GetHidingSpot(X, Y); -+goal(X, Y); !createMoveList.
+
++pos(seeker, X, Y) : seekerName(SN) <- -+lastSeen(X, Y).

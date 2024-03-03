@@ -44,6 +44,8 @@ public class Playground extends Environment {
     Term lookAround  = Literal.parseLiteral("lookAround");
     Term peek  = Literal.parseLiteral("peek");
     Term die  = Literal.parseLiteral("die");
+    Literal homeGoal  = Literal.parseLiteral("changeGoal(home)");
+    Literal changeGoal  = Literal.parseLiteral("changeGoal");
     
     @Override
     public void init(String[] args) 
@@ -123,19 +125,84 @@ public class Playground extends Environment {
 
             if(name.contains("seeker") && model.counting) // il cercatore non deve vedere mentre conta
                 continue;
-            
-            for(Location sawloc : model.vision(i)) //model.vision restituisce le posizioni degli agenti visti o un array vuoto
+            addSeen(name, model.vision(i));
+        }
+    }
+
+    /*
+    Prende una string che rappresenta il nome dell'agente e una lista di posizioni in cui l'agente ha visto qualcuno
+    A seconda del tipo di agente (BDI, RL, seeker e hiding), cambia come quest'informazione cambia il comportamento dell'agente
+    */
+    private void addSeen(String ag, List<Location> l)
+    {
+        for(Location sawloc : l)
+        {
+            int id = model.getAgAtPos(sawloc);
+            if(id == -1)
             {
-                int id = model.getAgAtPos(sawloc);
-                if(id == -1)
-                {
-                    continue; //a volte lo scheduling permette che tra la fine della vision e questa chiamata l'agente si sia già spostato o liberato
-                }
-                // TODO_BDI_RL: se un agente _RL_ vede deve cambiare stato
-                String seenName = id2Name(id);
+                continue; //a volte lo scheduling permette che tra la fine della vision e questa chiamata l'agente si sia già spostato o liberato
+            }
+            String seenName = id2Name(id);
+            if(ag.contains("_BDI_")) // GLi agenti BDI usano l'informazione da Jason; Questa funzione la "comunica" e basta
+            {
                 String s = "pos("+ seenName +", "+sawloc.x+", "+sawloc.y+ ")";
                 Literal seen = Literal.parseLiteral(s);
-                addPercept(name, seen);
+                addPercept(ag, seen);
+            }
+            else // Gli Agenti RL hano bisogno di sapere anche in che stato erano prima
+            {
+                String state = this.RL_States.get(ag);
+                String newState = state;
+                if(ag.contains("seeker")) // L'agente che vede è il seeker RL
+                {
+                    Literal lit = Literal.parseLiteral("saw("+ seenName + ")");
+                    addPercept(ag, lit);
+                    if(state.contains("search")) // Se ancora non aveva visto nessuno
+                    {
+                        addPercept(ag, homeGoal); // cambia dove l'agente sta andando e crea la coda delle mosse che deve fare
+                        newState = "run_false";
+                        this.RL_States.put(ag, newState);
+                    }
+                    // L'agente che è stato visto deve accorgersene
+                    // Il seeker_RL_ fa un broadcast uguale a quello del seeker_BDI_, gli hiding BDI reagiscono di conseguenza da Jason
+                    for( String agent : this.names)
+                    {
+                        if(agent.contains("_RL_"))
+                        {
+                            String otherState = this.RL_States.get(agent);
+                            if(seenName.equals(agent))
+                            {
+                                if(!otherState.contains("run"))// Se stava già correndo, non sovrascrivo
+                                {
+                                    logger.info("Visto Prima volta "+seenName); // DEBUG
+                                    Literal tmp = Literal.parseLiteral("newState(run_false_false)");
+                                    addPercept(seenName, homeGoal); // cambia dove l'agente sta andando e crea la coda delle mosse che deve fare 
+                                    addPercept(seenName, tmp);
+                                    this.RL_States.put(seenName, "run_false_false");
+                                }
+                            }
+                            else
+                            {
+                                if(otherState.contains("sneak"))
+                                {
+                                    Literal tmp = Literal.parseLiteral("newState(hide_false_false)");
+                                    addPercept(agent, changeGoal); // cambia dove l'agente sta andando e crea la coda delle mosse che deve fare 
+                                    addPercept(agent, tmp);
+                                    this.RL_States.put(agent, "hide_false_false");
+
+                                }
+                            }
+                        }
+                    }
+                }
+                // Gli agenti che si nascondono devono reagire solo al cercatore e solo se si stanno avvicinando a casa base
+                else if(seenName.contains("seeker") && state.contains("sneak") ) 
+                {
+                    newState = "hide_false_false";
+                    this.RL_States.put(ag, newState);
+                }
+                Literal NS = Literal.parseLiteral("newState("+newState+")");
+                addPercept(ag, NS);
             }
         }
     }
